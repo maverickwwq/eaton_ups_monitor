@@ -30,8 +30,9 @@ char* asciiToHex(const char* src,char* dest){
 	char *buf=(char*)malloc(lenth+1);			//临时数组
 	memset(buf,0,lenth+1);						//
 	strcpy(buf,src);							//保存参数
-	unsigned char tmp;							//
-	for (int i=0;i<lenth;i++){					//
+	unsigned char tmp;
+	int i=0;							//
+	for (;i<lenth;i++){					//
 		tmp=*(buf+i);							//
 		if (tmp>='A' && tmp<='F'){				//先转化成实际数值
 			*(buf+i)=tmp-'A'+10;				//'A'-'F'

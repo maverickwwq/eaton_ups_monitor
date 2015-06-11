@@ -11,7 +11,8 @@
 //
 //
 //
-//---------------------------------------------------
+//----------------------------------------------------
+
 
 #ifndef GLOBAL_VAR_H
 #include "global_var.h"
@@ -326,6 +327,8 @@ Sleep(1000);
 		}
 		sendCMD(_2023ups[i].UPS_COM_HANDLE,UPS_CMD_ACCEPT,UPS_CMD_ACCEPT_DECODE,NULL,0);
 printf("cmd27:%s\n",_2023ups[i].UPS_CMD_27_ANSWER);*/			//无法得到回应，注释 2015/6/4
+
+
 Sleep(1000);
 		printf("\nCmd31:\n");
 		if(!sendCMD(_2023ups[i].UPS_COM_HANDLE,UPS_CMD_31,UPS_CMD_31_DECODE,\
