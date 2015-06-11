@@ -14,7 +14,7 @@
 extern DWORD CHECK_TIME;
 
 //向ups发送相应命令，并将原始数据保存到相应的存储区
-BOOL sendCMD(HANDLE hCom,const char* cmd,DWORD bytesToRead);
+BOOL sendCMD(HANDLE hCom,const char* original_cmd,const char* cmd,char* answer,DWORD bytesToRead);
 
 
 
