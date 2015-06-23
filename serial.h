@@ -113,7 +113,7 @@ DWORD writeToCom(HANDLE hCom,const char* dataPtr,DWORD numToWrite){
 	COMSTAT	comStat;
 	PurgeComm(hCom,PURGE_TXCLEAR);						//清除发送缓存
 	ClearCommError(hCom,&error,&comStat);				//清除io错误
-	BOOL writeState=WriteFile(hCom,dataPtr,numToWrite,NULL,&overlapped);
+	WriteFile(hCom,dataPtr,numToWrite,NULL,&overlapped);
 	if(GetLastError() == ERROR_IO_PENDING){
 		GetOverlappedResult(hCom,&overlapped,&numOfWritten,TRUE);//函数等待异步操作结束后才返回
 	}
@@ -128,7 +128,7 @@ DWORD readFromCom(HANDLE hCom,char* dataPtr,DWORD numToRead){
 	COMSTAT	comStat;
 	PurgeComm(hCom,PURGE_RXCLEAR);
 	ClearCommError(hCom,&error,&comStat);								//清除IO错误
-	BOOL readState=ReadFile(hCom,dataPtr,numToRead,&numOfRead,&overlapped);
+	ReadFile(hCom,dataPtr,numToRead,&numOfRead,&overlapped);
 	if(GetLastError() == ERROR_IO_PENDING){
 		GetOverlappedResult(hCom,&overlapped,&numOfRead,TRUE);	//函数等待异步操作结束后才返回
 	}

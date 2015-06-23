@@ -4,12 +4,12 @@
 #define _DEBUG_							//调试用，不调试时需要注释掉
 
 //---------------------------------------------------
-//   2016/6/4
+//   2015/6/4
 // 1.	BOOL sendCMD(HANDLE hCom,const char* original_cmd,const char* decode_cmd,char* answer,DWORD bytesToRead)函数可以优化，const char* original_cmd参数没用
 // 2.	asciiToHex不用每次程序启动都重新计算一次
 //
-//
-//
+//	2015/6/23
+//	gtk3.0不再支持gtk_vbox_new() gtk_hbox_new()函数，修改为gtk_box_new()
 //
 //----------------------------------------------------
 
@@ -152,15 +152,18 @@ int main(void){
 		
 		int frameCount=0,itemCount=0;											//
 		GdkColor valueBGColor;
-		horizonAllUPS=gtk_hbox_new(TRUE,2);										//
+		//horizonAllUPS=gtk_hbox_new(TRUE,2);									//
+		horizonAllUPS=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
 		gtk_container_add(GTK_CONTAINER(mainWin),horizonAllUPS);				//
 		for(frameCount=0;frameCount<4;frameCount++){							//
 			frame=gtk_frame_new(_G(frames[frameCount]));						//
 			gtk_box_pack_start(GTK_BOX(horizonAllUPS),frame,TRUE,TRUE,2);		//
-			vbox=gtk_vbox_new(TRUE,10);											//
+			//vbox=gtk_vbox_new(TRUE,10);										//
+			vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
 			gtk_container_add(GTK_CONTAINER(frame),vbox);						//
 			for(int i=0;i<9;i++){
-				hbox=gtk_hbox_new(TRUE,2);												//
+				//hbox=gtk_hbox_new(TRUE,2);												//
+				hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
 				gtk_box_pack_start(GTK_BOX(vbox),hbox,TRUE,TRUE,5);						//
 				item=gtk_label_new(_G(items[i]));										//
 				setFontColor(item,11,"blue");											//
@@ -181,7 +184,7 @@ int main(void){
 			gtk_box_pack_start (GTK_BOX (gtk_info_bar_get_content_area (GTK_INFO_BAR (itemValue[frameCount][9]))),\
 				itemValue[frameCount][10], FALSE, FALSE, 0);
 		}
-		//g_timeout_add_seconds(REFRESH_PER_X_SECONDS*1000,GSourceFunc(refreshUI),NULL);
+		g_timeout_add(REFRESH_PER_X_SECONDS*1000,(GSourceFunc)refreshUI,NULL);
 		gtk_widget_show_all(mainWin);
 		
 
