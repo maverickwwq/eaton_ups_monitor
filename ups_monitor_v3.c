@@ -5,7 +5,7 @@
 
 //---------------------------------------------------
 //   2015/6/4
-// 1.	BOOL sendCMD(HANDLE hCom,const char* original_cmd,const char* decode_cmd,char* answer,DWORD bytesToRead)函数可以优化，const char* original_cmd参数没用
+// 1.	_Bool sendCMD(HANDLE hCom,const char* original_cmd,const char* decode_cmd,char* answer,DWORD bytesToRead)函数可以优化，const char* original_cmd参数没用
 // 2.	asciiToHex不用每次程序启动都重新计算一次
 //
 //	2015/6/23
@@ -13,7 +13,6 @@
 //
 //----------------------------------------------------
 
-typedef enum{false,true} bool;
 
 #ifndef GLOBAL_VAR_H
 #include "global_var.h"
@@ -112,89 +111,81 @@ int main(void){
 		}
 	}
 
-
-
-		//	4.图形界面代码
-
-		if(!gtk_init_check(NULL,NULL)){
-//			g_thread_init(NULL);
-			printf("窗口系统无法初始化\n");
-			exit(0);
+	//	4.图形界面代码
+	if(!gtk_init_check(NULL,NULL)){
+//		g_thread_init(NULL);
+		printf("窗口系统无法初始化\n");
+		exit(0);
+	}
+	GtkWidget *mainWin;													//主窗口
+	GtkWidget *horizonAllUPS;											//
+	GtkWidget *frame;													//
+	GtkWidget *vbox;													//
+	GtkWidget *hbox;													//
+	GtkWidget *item;													//
+	GtkWidget *evenbox;													//
+		
+	extern GtkWidget *itemValue[4][11];									//
+	extern const char *frames[];
+	extern const char *items[];
+		
+	mainWin=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(mainWin),_G("2023台节传UPS警示系统"));	//主窗口
+	gtk_window_set_resizable(GTK_WINDOW(mainWin),TRUE);						//可改变大小
+	gtk_window_set_default_size(GTK_WINDOW(mainWin),1000,640);				//窗口大小
+	gtk_window_set_position(GTK_WINDOW(mainWin),GTK_WIN_POS_CENTER);		//居中
+		
+	gtk_container_set_border_width(GTK_CONTAINER(mainWin),6);				//边界大小
+	g_signal_connect(mainWin,"destroy",G_CALLBACK(destroyEvent),NULL);		//销毁函数
+	GdkPixbuf *pixBuf;														//设置小图标
+	GError *error=NULL;														//
+	pixBuf=gdk_pixbuf_new_from_file("icons/battery.png",&error);			//图标路径
+	if(!pixBuf){															//
+		fprintf(stderr, "%s\n", error->message);							//
+		g_error_free(error);												//
+	}																		//
+	gtk_window_set_icon(GTK_WINDOW(mainWin),pixBuf);						//
+		
+	int frameCount=0,itemCount=0;											//
+	GdkColor valueBGColor;
+	//horizonAllUPS=gtk_hbox_new(TRUE,2);									//
+	horizonAllUPS=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);				//
+	gtk_container_add(GTK_CONTAINER(mainWin),horizonAllUPS);				//
+	for(frameCount=0;frameCount<4;frameCount++){							//
+		frame=gtk_frame_new(_G(frames[frameCount]));						//
+		gtk_box_pack_start(GTK_BOX(horizonAllUPS),frame,TRUE,TRUE,2);		//
+		//vbox=gtk_vbox_new(TRUE,10);										//
+		vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
+		gtk_container_add(GTK_CONTAINER(frame),vbox);						//
+		for(int i=0;i<9;i++){
+			//hbox=gtk_hbox_new(TRUE,2);												//
+			hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
+			gtk_box_pack_start(GTK_BOX(vbox),hbox,TRUE,TRUE,5);						//
+			item=gtk_label_new(_G(items[i]));										//
+			setFontColor(item,11,"blue");											//
+			gtk_box_pack_start(GTK_BOX(hbox),item,TRUE,TRUE,2);						//
+			evenbox=gtk_event_box_new();											//
+			gdk_color_parse("black",&valueBGColor);
+			gtk_widget_modify_bg(evenbox, GTK_STATE_NORMAL, &valueBGColor);		//背景颜色
+			gtk_box_pack_start(GTK_BOX(hbox),evenbox,TRUE,TRUE,2);					//
+			itemValue[frameCount][i]=gtk_label_new("-- --");									//
+			setFontColor(itemValue[frameCount][i],15,"green");									//
+			gtk_container_add(GTK_CONTAINER(evenbox),itemValue[frameCount][i]);					//
 		}
-		GtkWidget *mainWin;													//主窗口
-		GtkWidget *horizonAllUPS;											//
-		GtkWidget *frame;													//
-		GtkWidget *vbox;													//
-		GtkWidget *hbox;													//
-		GtkWidget *item;													//
-		GtkWidget *evenbox;													//
-		
-		extern GtkWidget *itemValue[4][11];									//
-		extern const char *frames[];
-		extern const char *items[];
-		
-		mainWin=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-		gtk_window_set_title(GTK_WINDOW(mainWin),_G("2023台节传UPS警示系统"));	//主窗口
-		gtk_window_set_resizable(GTK_WINDOW(mainWin),TRUE);						//可改变大小
-		gtk_window_set_default_size(GTK_WINDOW(mainWin),1000,640);				//窗口大小
-		gtk_window_set_position(GTK_WINDOW(mainWin),GTK_WIN_POS_CENTER);		//居中
-		
-		gtk_container_set_border_width(GTK_CONTAINER(mainWin),6);				//边界大小
-		g_signal_connect(mainWin,"destroy",G_CALLBACK(destroyEvent),NULL);		//销毁函数
-		GdkPixbuf *pixBuf;														//设置小图标
-		GError *error=NULL;														//
-		pixBuf=gdk_pixbuf_new_from_file("icons/battery.png",&error);			//图标路径
-		if(!pixBuf){															//
-			fprintf(stderr, "%s\n", error->message);							//
-			g_error_free(error);												//
-		}																		//
-		gtk_window_set_icon(GTK_WINDOW(mainWin),pixBuf);						//
-		
-		int frameCount=0,itemCount=0;											//
-		GdkColor valueBGColor;
-		//horizonAllUPS=gtk_hbox_new(TRUE,2);									//
-		horizonAllUPS=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
-		gtk_container_add(GTK_CONTAINER(mainWin),horizonAllUPS);				//
-		for(frameCount=0;frameCount<4;frameCount++){							//
-			frame=gtk_frame_new(_G(frames[frameCount]));						//
-			gtk_box_pack_start(GTK_BOX(horizonAllUPS),frame,TRUE,TRUE,2);		//
-			//vbox=gtk_vbox_new(TRUE,10);										//
-			vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
-			gtk_container_add(GTK_CONTAINER(frame),vbox);						//
-			for(int i=0;i<9;i++){
-				//hbox=gtk_hbox_new(TRUE,2);												//
-				hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
-				gtk_box_pack_start(GTK_BOX(vbox),hbox,TRUE,TRUE,5);						//
-				item=gtk_label_new(_G(items[i]));										//
-				setFontColor(item,11,"blue");											//
-				gtk_box_pack_start(GTK_BOX(hbox),item,TRUE,TRUE,2);						//
-				evenbox=gtk_event_box_new();											//
-				gdk_color_parse("black",&valueBGColor);
-				gtk_widget_modify_bg(evenbox, GTK_STATE_NORMAL, &valueBGColor);		//背景颜色
-				gtk_box_pack_start(GTK_BOX(hbox),evenbox,TRUE,TRUE,2);					//
-				itemValue[frameCount][i]=gtk_label_new("-- --");									//
-				setFontColor(itemValue[frameCount][i],15,"green");									//
-				gtk_container_add(GTK_CONTAINER(evenbox),itemValue[frameCount][i]);					//
-			}
-			itemValue[frameCount][9] = gtk_info_bar_new ();
-			gtk_box_pack_start (GTK_BOX (vbox), itemValue[frameCount][i], FALSE, FALSE, 0);
-			gtk_info_bar_set_message_type (GTK_INFO_BAR (itemValue[frameCount][i]),\
-				GTK_MESSAGE_QUESTION);
-			itemValue[frameCount][10]= gtk_label_new (_G("正常"));
-			gtk_box_pack_start (GTK_BOX (gtk_info_bar_get_content_area (GTK_INFO_BAR (itemValue[frameCount][9]))),\
-				itemValue[frameCount][10], FALSE, FALSE, 0);
-		}
-		g_timeout_add(REFRESH_PER_X_SECONDS*1000,(GSourceFunc)refreshUI,NULL);
-		gtk_widget_show_all(mainWin);
-		
-
-
+		itemValue[frameCount][9] = gtk_info_bar_new ();
+		gtk_box_pack_start (GTK_BOX (vbox), itemValue[frameCount][9], FALSE, FALSE, 0);
+		gtk_info_bar_set_message_type (GTK_INFO_BAR (itemValue[frameCount][9]),\
+			GTK_MESSAGE_QUESTION);
+		itemValue[frameCount][10]= gtk_label_new (_G("正常"));
+		gtk_box_pack_start (GTK_BOX (gtk_info_bar_get_content_area (GTK_INFO_BAR (itemValue[frameCount][9]))),\
+			itemValue[frameCount][10], FALSE, FALSE, 0);
+	}
+	//g_timeout_add(REFRESH_PER_X_SECONDS*1000,(GSourceFunc)refreshUI,NULL);
+	gtk_widget_show_all(mainWin);
 
 	//5.创建一个线程，用来发送接收串口数据
-	HANDLE sendDataThreadProc=CreateThread(NULL,0,sendDataViaCom,NULL,0,NULL);
-
+	//HANDLE sendDataThreadProc=CreateThread(NULL,0,sendDataViaCom,NULL,0,NULL);
 	gtk_main();
-
 	return 0;
 }
 

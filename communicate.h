@@ -14,12 +14,12 @@
 extern DWORD CHECK_TIME;
 
 //向ups发送相应命令，并将原始数据保存到相应的存储区
-BOOL sendCMD(HANDLE hCom,const char* original_cmd,const char* cmd,char* answer,DWORD bytesToRead);
+_Bool sendCMD(HANDLE hCom,const char* original_cmd,const char* cmd,char* answer,DWORD bytesToRead);
 
 
 
 
-BOOL sendCMD(HANDLE hCom,const char* original_cmd,const char* decode_cmd,char* answer,DWORD bytesToRead){
+_Bool sendCMD(HANDLE hCom,const char* original_cmd,const char* decode_cmd,char* answer,DWORD bytesToRead){
 	unsigned int length=strlen(original_cmd);				//初始命令的长度
 	DWORD writtenBytes=0,readBytes=0,doIt=CHECK_TIME;
 	if(bytesToRead == 0){										//只发送不接受数据

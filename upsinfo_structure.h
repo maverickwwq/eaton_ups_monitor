@@ -23,34 +23,34 @@ typedef struct	_UPS_STATE {
 	//--------------------ups总体信息----------------------------------------------
 	char	UPS_NAME[40];			//UPS标示符
 	HANDLE	UPS_COM_HANDLE;			//该UPS占用的COM口HANDLE
-	bool	UPS_SET_ACTIVE;			//UPS是否被设置为启用
-	bool	UPS_COMMUNICATE_NORMAL;	//通信正常
-	bool	UPS_ERROR;				//TRUE FOR error,FALSE FOR NORMAL
-	bool	SHUTDOWN_MODE;			//TRUE FOR SHUTDOWN,FALSE FOR OTHER MODE
-	bool	OVERHEAT;				//ups过温;TRUE FOR YES
-	bool	UPS_ALARM_ENABLE;		//使能报警声音
+	_Bool	UPS_SET_ACTIVE;			//UPS是否被设置为启用
+	_Bool	UPS_COMMUNICATE_NORMAL;	//通信正常
+	_Bool	UPS_ERROR;				//TRUE FOR error,FALSE FOR NORMAL
+	_Bool	SHUTDOWN_MODE;			//TRUE FOR SHUTDOWN,FALSE FOR OTHER MODE
+	_Bool	OVERHEAT;				//ups过温;TRUE FOR YES
+	_Bool	UPS_ALARM_ENABLE;		//使能报警声音
 	int		LINK_COM_NUM;			//该UPS所连接的COM口号
 	//--------------------市电信息-------------------------------------------------
-	bool	INPUT_POWER_ABNORMAL;		//市电异常	true for abnormal ,false for normal
-	bool	INPUT_POWER_MODE;			//TRUE FOR 市电,FALSE FOR 非市电供电
-	bool	INPUT_FREQUENCY_ABNORMAL;	//TRUE FOR ABNORMAL
-	bool	INPUT_VOLTAGE_ABNORMAL;		//TRUE FOR ABNORMAL
+	_Bool	INPUT_POWER_ABNORMAL;		//市电异常	true for abnormal ,false for normal
+	_Bool	INPUT_POWER_MODE;			//TRUE FOR 市电,FALSE FOR 非市电供电
+	_Bool	INPUT_FREQUENCY_ABNORMAL;	//TRUE FOR ABNORMAL
+	_Bool	INPUT_VOLTAGE_ABNORMAL;		//TRUE FOR ABNORMAL
 	unsigned int	INPUT_VOLTAGE;				//市电电压
 	unsigned char	INPUT_FREQUENCY;			//市电频率
 	//--------------------电池信息-------------------------------------------------
-	bool	BATTERY_MODE;		//TRUE FOR 电池供电模式,FALSE FOR 非电池供电模式
-	bool	DISCHARGE;			//电池放电状态 true for diacharge
-	bool	BATTERY_LINK_STATE;	//电池连接状态
-	BOOL	BATTERY_LOW_VOLTAGE;//电池低压
+	_Bool	BATTERY_MODE;		//TRUE FOR 电池供电模式,FALSE FOR 非电池供电模式
+	_Bool	DISCHARGE;			//电池放电状态 true for diacharge
+	_Bool	BATTERY_LINK_STATE;	//电池连接状态
+	_Bool	BATTERY_LOW_VOLTAGE;//电池低压
 	char	BATTERY_VOLTATE;	//电池电压
 	char	BATTERY_CAPACITY;	//电池剩余容量 %xx
 	char	BATTERY_NUM;		//电池节数 3:1k 6:2k 8:3k
 	char	BATTERY_SELFTEST;	//1:OK 3:self test failed 5:self testing 6:other state
 	char	OVERCHARGE;			//过冲 1:over charge 0:no
-	bool	CHARGER_ERROR;		//1:ERROR	0:NO
+	_Bool	CHARGER_ERROR;		//1:ERROR	0:NO
 	int		BATTERY_REMAIN_TIME;//剩余时间		
 	//--------------------输出信息-------------------------------------------------
-	bool	OVERLOAD;				//TRUE FOR OVERLOAD
+	_Bool	OVERLOAD;				//TRUE FOR OVERLOAD
 	char	LOAD_PERCEN;			//负载百分比
 	unsigned int	OUTPUT_VOLTAGE;	//输出电压
 	char	OUTPUT_FREQUENCY;		//输出频率	
@@ -59,12 +59,12 @@ typedef struct	_UPS_STATE {
 	float	OUTPUT_CURRENT;			//输出电流
 	
 	//--------------------风扇----------------------------------------------------
-	bool	FAN_ERROR;			//TRUE FOR ERROR
+	_Bool	FAN_ERROR;			//TRUE FOR ERROR
 	//--------------------旁路----------------------------------------------------
-	bool	BYPASS_MODE;		//TRUE FOR YES
-	bool	BYPASS_FREQUENCY_NORMAL;//TRUE FOR NORMAL
-	bool	BYPASS_NORMAL;			//TRUE:BYPASS NORMAL
-	bool	BYPASS_VOLTAGE_NORMAL;	//TRUE:VOLTAGE NORMAL
+	_Bool	BYPASS_MODE;		//TRUE FOR YES
+	_Bool	BYPASS_FREQUENCY_NORMAL;//TRUE FOR NORMAL
+	_Bool	BYPASS_NORMAL;			//TRUE:BYPASS NORMAL
+	_Bool	BYPASS_VOLTAGE_NORMAL;	//TRUE:VOLTAGE NORMAL
 
 	//------------------发送命令后所得到的应答------------------------------------
 	char UPS_COMMUNICATION_INI_ANSWER[3];			//实际接受到的数据+一个字节的NULL
@@ -82,15 +82,15 @@ typedef struct	_UPS_STATE {
 	char UPS_CMD_42_ANSWER[18];						//
 	
 	//------------------命令的确认------------------------------------------------
-	BOOL CMD_01_CHECK;
-	BOOL CMD_02_CHECK;
-	BOOL CMD_03_CHECK;
-	BOOL CMD_06_CHECK;
-	BOOL CMD_07_CHECK;
-	BOOL CMD_24_CHECK;
-	BOOL CMD_27_CHECK;
-	BOOL CMD_31_CHECK;
-	BOOL CMD_32_CHECK;
-	BOOL CMD_3B_CHECK;
-	BOOL CMD_42_CHECK;
+	_Bool CMD_01_CHECK;
+	_Bool CMD_02_CHECK;
+	_Bool CMD_03_CHECK;
+	_Bool CMD_06_CHECK;
+	_Bool CMD_07_CHECK;
+	_Bool CMD_24_CHECK;
+	_Bool CMD_27_CHECK;
+	_Bool CMD_31_CHECK;
+	_Bool CMD_32_CHECK;
+	_Bool CMD_3B_CHECK;
+	_Bool CMD_42_CHECK;
 } UPS_STATE;

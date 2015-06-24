@@ -29,11 +29,11 @@
 //打开并初始化串口
 extern HANDLE initialCom(const char* comX,const unsigned int bufSize);
 //关闭串口
-extern BOOL closeCom(HANDLE hCom);
+extern _Bool closeCom(HANDLE hCom);
 //设置串口超时参数
-extern BOOL setComTimeout(HANDLE hCom,COMMTIMEOUTS timeouts);
+extern _Bool setComTimeout(HANDLE hCom,COMMTIMEOUTS timeouts);
 //设置串口参数
-extern BOOL setComPara(HANDLE hCom,const char* setup);
+extern _Bool setComPara(HANDLE hCom,const char* setup);
 //向串口写数据
 extern DWORD writeToCom(HANDLE hCom,const char* dataPtr,DWORD numToWrite);
 //从串口读数据
@@ -68,12 +68,12 @@ HANDLE initialCom(const char* comX,const unsigned int bufSize){
 // Method:    setComTimeout
 // FullName:  setComTimeout
 // Access:    public 
-// Returns:   BOOL
+// Returns:   _Bool
 // Qualifier:
 // Parameter: HANDLE hCom
 // Parameter: COMMTIMEOUTS timeouts
 //************************************
-BOOL setComTimeout(HANDLE hCom,COMMTIMEOUTS timeouts){
+_Bool setComTimeout(HANDLE hCom,COMMTIMEOUTS timeouts){
 	return(SetCommTimeouts(hCom,&timeouts));					//设置超时设定
 }
 
@@ -82,12 +82,12 @@ BOOL setComTimeout(HANDLE hCom,COMMTIMEOUTS timeouts){
 // Method:    setComPara
 // FullName:  setComPara
 // Access:    public 
-// Returns:   BOOL
+// Returns:   _Bool
 // Qualifier:
 // Parameter: HANDLE hCom
 // Parameter: const char * setup
 //************************************
-BOOL setComPara(HANDLE hCom,const char* setup){
+_Bool setComPara(HANDLE hCom,const char* setup){
 	DCB	dcbBuf;
 	GetCommState(hCom,&dcbBuf);							//获取原始dcb
 	BuildCommDCB(setup,&dcbBuf);						//设置dcb
@@ -98,11 +98,11 @@ BOOL setComPara(HANDLE hCom,const char* setup){
 // Method:    closeCom
 // FullName:  closeCom
 // Access:    public 
-// Returns:   BOOL
+// Returns:   _Bool
 // Qualifier:
 // Parameter: HANDLE hCom
 //************************************
-BOOL closeCom(HANDLE hCom){
+_Bool closeCom(HANDLE hCom){
 	return CloseHandle(hCom);
 }
 
