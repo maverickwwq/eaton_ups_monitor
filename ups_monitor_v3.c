@@ -11,6 +11,9 @@
 //	2015/6/23
 //	gtk3.0不再支持gtk_vbox_new() gtk_hbox_new()函数，修改为gtk_box_new()
 //
+//
+//	2015/6/24
+//	修改线程，两个线程互斥
 //----------------------------------------------------
 
 
@@ -47,12 +50,14 @@
 DWORD WINAPI	sendDataViaCom(void*);
 //定时刷新界面
 gboolean refreshUI(void *nothing);
+
 //资源回收,退出程序时调用
 //关闭句柄，关闭线程，关闭串口
-void _atExit();
+//void _atExit();
 
 
 extern UPS_STATE _2023ups[NUM_OF_UPS];//引用其他文件的全局变量
+extern GtkWidget *itemValue[4][11];
 
 int main(void){
 	//1.将发送的命令转换成正确的格式
@@ -76,13 +81,6 @@ int main(void){
 	_2023ups[2].LINK_COM_NUM=0;
 	_2023ups[3].LINK_COM_NUM=0;
 
-	
-#define READ_INTERVAL 5
-#define READ_MULTIPLIER 15
-#define READ_CONSTANT 15
-#define WRITE_MULTIPLIER 10
-#define WRITE_CONSTANT 10
-
 #ifdef _DEBUG_
 	printf("DEBUG !!!!!!!!!!!!!!!!!!!!!!!\n\n\n");
 #endif
@@ -91,23 +89,30 @@ int main(void){
 	//3.初始化相应串口
 	int i=0;
 	char com[20];
-	for(i=0;i<NUM_OF_UPS;i++){
+	for(i=0;i<NUM_OF_UPS;i++){			//打开串口，配置相应参数
 		memset(com,0,20);
-		if(_2023ups[i].LINK_COM_NUM	>	0){		// _2023ups[i].LINK_COM_NUM从配置文件读取,>0有效
+		if(_2023ups[i].LINK_COM_NUM	>	0){		// _2023ups[i].LINK_COM_NUM从配置文件读取,>0有效	
 			sprintf(com,"COM%d",_2023ups[i].LINK_COM_NUM);
-#ifdef _DEBUG_
-	printf("start com%d communication\n",_2023ups[i].LINK_COM_NUM);
-#endif
+			_2023ups[i].UPS_SET_ACTIVE=TRUE;
+		#ifdef _DEBUG_
+			printf("start com%d communication\n",_2023ups[i].LINK_COM_NUM);
+		#endif
 			_2023ups[i].UPS_COM_HANDLE=initialCom(com,1024);
 			if(_2023ups[i].UPS_COM_HANDLE == INVALID_HANDLE_VALUE){
+				//需要加入异常处理及日志记录
 				printf("Open Com Error\n");
 				exit(0);
 			}
 			COMMTIMEOUTS timeouts={READ_INTERVAL,READ_MULTIPLIER,READ_CONSTANT,WRITE_MULTIPLIER,WRITE_CONSTANT};
 			if(setComTimeout(_2023ups[i].UPS_COM_HANDLE,timeouts))
 				printf("set com timeout ok\n");
+				//需要加入异常处理及日志记录
 			if(setComPara(_2023ups[i].UPS_COM_HANDLE,_24_N_8_1))
 				printf("set com parameter ok\n");	
+				//需要加入异常处理及日志记录
+		}
+		else {
+			_2023ups[i].UPS_SET_ACTIVE=FALSE;
 		}
 	}
 
@@ -126,8 +131,8 @@ int main(void){
 	GtkWidget *evenbox;													//
 		
 	extern GtkWidget *itemValue[4][11];									//
-	extern const char *frames[];
-	extern const char *items[];
+	extern const char *frames[];										//
+	extern const char *items[];											//
 		
 	mainWin=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(mainWin),_G("2023台节传UPS警示系统"));	//主窗口
@@ -142,11 +147,12 @@ int main(void){
 	pixBuf=gdk_pixbuf_new_from_file("icons/battery.png",&error);			//图标路径
 	if(!pixBuf){															//
 		fprintf(stderr, "%s\n", error->message);							//
+		//需要加入异常处理及日志记录
 		g_error_free(error);												//
 	}																		//
 	gtk_window_set_icon(GTK_WINDOW(mainWin),pixBuf);						//
 		
-	int frameCount=0,itemCount=0;											//
+	int frameCount=0;											//
 	GdkColor valueBGColor;
 	//horizonAllUPS=gtk_hbox_new(TRUE,2);									//
 	horizonAllUPS=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);				//
@@ -180,11 +186,11 @@ int main(void){
 		gtk_box_pack_start (GTK_BOX (gtk_info_bar_get_content_area (GTK_INFO_BAR (itemValue[frameCount][9]))),\
 			itemValue[frameCount][10], FALSE, FALSE, 0);
 	}
-	//g_timeout_add(REFRESH_PER_X_SECONDS*1000,(GSourceFunc)refreshUI,NULL);
+	g_timeout_add(REFRESH_PER_X_SECONDS*1000,(GSourceFunc)refreshUI,NULL);
 	gtk_widget_show_all(mainWin);
 
 	//5.创建一个线程，用来发送接收串口数据
-	//HANDLE sendDataThreadProc=CreateThread(NULL,0,sendDataViaCom,NULL,0,NULL);
+	HANDLE sendDataThreadProc=CreateThread(NULL,0,sendDataViaCom,NULL,0,NULL);
 	gtk_main();
 	return 0;
 }
@@ -216,7 +222,7 @@ DWORD WINAPI sendDataViaCom(void* dummy){
 		//测试通信是否正常
  		if(!sendCMD(_2023ups[i].UPS_COM_HANDLE,UPS_COMMUNICATION_INI,\
 			UPS_COMMUNICATION_INI_DECODE,_2023ups[i].UPS_COMMUNICATION_INI_ANSWER,1) && \
-			!sendCMD(_2023ups[i].UPS_COM_HANDLE,UPS_CMD_01,UPS_CMD_01_DECODE,_2023ups[i].UPS_CMD_01_ANSWER,10)){
+				!sendCMD(_2023ups[i].UPS_COM_HANDLE,UPS_CMD_01,UPS_CMD_01_DECODE,_2023ups[i].UPS_CMD_01_ANSWER,10)){
 				//不正常，清零结果
 			memset(_2023ups[i].UPS_COMMUNICATION_INI_ANSWER,0,\
 					sizeof(_2023ups[i].UPS_COMMUNICATION_INI_ANSWER));			//
@@ -232,7 +238,7 @@ DWORD WINAPI sendDataViaCom(void* dummy){
 //				COMMTIMEOUTS timeouts={5,15,15,1,1};
 				COMMTIMEOUTS timeouts={READ_INTERVAL,READ_MULTIPLIER,READ_CONSTANT,WRITE_MULTIPLIER,WRITE_CONSTANT};
 				if(setComTimeout(_2023ups[i].UPS_COM_HANDLE,timeouts))
-					printf("set com timeout ok\n");
+					printf("set com timeout ok\n");//需要加入异常处理及日志记录
 				if(setComPara(_2023ups[i].UPS_COM_HANDLE,_24_N_8_1))
 					printf("set com parameter ok\n");	
 				if(_2023ups[i].UPS_COM_HANDLE == INVALID_HANDLE_VALUE){		//无效句柄
@@ -241,7 +247,7 @@ DWORD WINAPI sendDataViaCom(void* dummy){
 				}
 				goto start_commu;											//重新测试通信
 			}
-			//确认通信故障
+			//尝试CHECK_TIME次失败后，确认通信故障
 			else{		//所有命令标识置为无效
 				_2023ups[i].UPS_COMMUNICATE_NORMAL=FALSE;
 				_2023ups[i].CMD_01_CHECK=FALSE;
@@ -264,8 +270,9 @@ DWORD WINAPI sendDataViaCom(void* dummy){
 		}
 
 		_2023ups[i].UPS_COMMUNICATE_NORMAL=TRUE;	//确认通信正常，通信标识置为真
+	#ifdef _DEBUG_
 		printf("communicate:%s\n",_2023ups[i].UPS_COMMUNICATION_INI_ANSWER);
-
+	#endif
 		printf("\nCmd1:\n");
 		//发送命令，如果所得的结果字节少于预期，那么清空结果字段
 		if(!sendCMD(_2023ups[i].UPS_COM_HANDLE,UPS_CMD_01,UPS_CMD_01_DECODE,\
@@ -274,7 +281,7 @@ DWORD WINAPI sendDataViaCom(void* dummy){
 		}
 		sendCMD(_2023ups[i].UPS_COM_HANDLE,UPS_CMD_ACCEPT,UPS_CMD_ACCEPT_DECODE,NULL,0);
 		printf("cmd01:%s\n",_2023ups[i].UPS_CMD_01_ANSWER);
-Sleep(1000);		
+		Sleep(1000);		
 		printf("\nCmd2:\n");
 		if(!sendCMD(_2023ups[i].UPS_COM_HANDLE,UPS_CMD_02,UPS_CMD_02_DECODE,\
 			_2023ups[i].UPS_CMD_02_ANSWER,9)){
@@ -282,7 +289,7 @@ Sleep(1000);
 		}
 		sendCMD(_2023ups[i].UPS_COM_HANDLE,UPS_CMD_ACCEPT,UPS_CMD_ACCEPT_DECODE,NULL,0);
 		printf("cmd02:%s\n",_2023ups[i].UPS_CMD_02_ANSWER);
-Sleep(1000);
+		Sleep(1000);
 		printf("\nCmd3:\n");
 		//发送的命令或接收到的数据长度不正确，清空命令结果
 		if(!sendCMD(_2023ups[i].UPS_COM_HANDLE,UPS_CMD_03,UPS_CMD_03_DECODE,\
@@ -387,11 +394,6 @@ Sleep(1000);
 			_2023ups[i].CMD_01_CHECK=FALSE;
 		}
 		if(!strncmp(VALID_CMD2_ANSWER,_2023ups[i].UPS_CMD_02_ANSWER,3)){
-			printf("\n\n--------    ");
-			for(int e=0;e<9;e++){
-				printf("%02x",(unsigned char)_2023ups[i].UPS_CMD_02_ANSWER[e]);
-			}
-			printf("    ------------\n\n");
 			_2023ups[i].UPS_ERROR=(_2023ups[i].UPS_CMD_02_ANSWER[4]==0x01)?TRUE:FALSE;
 			_2023ups[i].BATTERY_LINK_STATE=(_2023ups[i].UPS_CMD_02_ANSWER[5]==0x01)?TRUE:FALSE;
 			_2023ups[i].OVERLOAD=(_2023ups[i].UPS_CMD_02_ANSWER[6]==0x00)?FALSE:TRUE;
@@ -450,7 +452,6 @@ Sleep(1000);
 			_2023ups[i].INPUT_VOLTAGE=(((unsigned char)_2023ups[i].UPS_CMD_31_ANSWER[6])<<8) +\
 				(unsigned char)_2023ups[i].UPS_CMD_31_ANSWER[5];
 			_2023ups[i].CMD_31_CHECK=TRUE;
-
 		}
 		else{
 			_2023ups[i].CMD_31_CHECK=FALSE;
@@ -510,6 +511,7 @@ gboolean refreshUI(void *nothing){
 //	g_type_init();
 	static unsigned int count=0;
 	int i=0,j=0;
+/*
 	printf("\n--------------------------------------------\n");
 	printf("--------------------------------------------\n");
 	printf("通信:%s\n",(_2023ups[i].UPS_COMMUNICATE_NORMAL==TRUE)?"正常":"故障");
@@ -520,11 +522,12 @@ gboolean refreshUI(void *nothing){
 	printf("Count:%4d\n",count);
 	printf("--------------------------------------------\n");
 	printf("--------------------------------------------\n");
+*/
 	extern GtkWidget *itemValue[4][11];
 	char buf[25];
 	
 	for(i=0;i<NUM_OF_UPS;++i){
-		if(_2023ups[i].LINK_COM_NUM	>	0){	// >0 初始化时会打开串口,尝试串口通信
+		if(_2023ups[i].UPS_SET_ACTIVE	==	TRUE){	// 
 			if(_2023ups[i].UPS_COMMUNICATE_NORMAL){
 				setFontColor(itemValue[i][0],15,"green");
 				gtk_label_set_text(GTK_LABEL(itemValue[i][0]),_G("通信正常"));
@@ -578,19 +581,23 @@ gboolean refreshUI(void *nothing){
 						buf);
 				}
 			}
-			else{
+			else{							//通信故障
 				for(j=0;j<=8;j++){
  					setFontColor(itemValue[i][j],15,"red");
  					gtk_label_set_text(GTK_LABEL(itemValue[i][j]),"-- --");
 				}
-				setFontColor(itemValue[i][0],15,"green");
+				setFontColor(itemValue[i][0],15,"red");
 				gtk_label_set_text(GTK_LABEL(itemValue[i][0]),_G("通信故障"));
 			}
 		}
+		else{		//配置文件关闭该ups的监控
+			//
+		}
 	}
-
+	
+	//声音报警
 	for(i=0;i<NUM_OF_UPS;++i){
-		if(_2023ups[i].LINK_COM_NUM	>	0){	// >0 初始化时会打开串口,尝试串口通信
+		if(_2023ups[i].UPS_SET_ACTIVE	==	TRUE){	//初始化时会打开串口,尝试串口通信
 			if(_2023ups[i].UPS_COMMUNICATE_NORMAL){	//通信正常
 				if(!_2023ups[i].INPUT_POWER_ABNORMAL){//市电正常
 					//
