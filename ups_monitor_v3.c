@@ -14,34 +14,49 @@
 //
 //	2015/6/24
 //	修改线程，两个线程互斥
+//
+//
+//
+//	2015/6/25
+// 需要增加异常处理模块，包括异常提示及异常记录（log）
+// 需要增加配置文件读取模块
+//
+//
 //----------------------------------------------------
 
 
 #ifndef GLOBAL_VAR_H
+#define GLOBAL_VAR_H
 #include "global_var.h"
 #endif
 
 #ifndef SERIAL_H
+#define SERIAL_H
 #include "serial.h"
 #endif
 
 #ifndef CMD_CONVERT_H
+#define CMD_CONVERT_H
 #include "cmd_convert.h"
 #endif
 
 #ifndef UPSINFO_STRUCTURE_H
+#define UPSINFO_STRUCTURE_H
 #include "upsinfo_structure.h"
 #endif
 
 #ifndef COMMUNICATE_H
+#define COMMUNICATE_H
 #include "communicate.h"
 #endif
 
 #ifndef UI_H
+#define UI_H
 #include "ui.h"
 #endif
 
 #ifndef ALARM_H
+#define ALARM_H
 #include "alarm.h"
 #endif
 
@@ -166,6 +181,7 @@ int main(void){
 		for(int i=0;i<9;i++){
 			//hbox=gtk_hbox_new(TRUE,2);												//
 			hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
+			gtk_box_set_homogeneous(hbox,TRUE);
 			gtk_box_pack_start(GTK_BOX(vbox),hbox,TRUE,TRUE,5);						//
 			item=gtk_label_new(_G(items[i]));										//
 			setFontColor(item,11,"blue");											//

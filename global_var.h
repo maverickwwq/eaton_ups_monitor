@@ -1,10 +1,12 @@
 #define GLOBAL_VAR_H
 
 #ifndef UPSINFO_STRUCTURE_H
+#define UPSINFO_STRUCTURE_H
 #include "upsinfo_structure.h"
 #endif
 
 #ifndef GTK_H
+#define GTK_H
 #include "gtk/gtk.h"
 #endif
 //****************************************************************************************************************
