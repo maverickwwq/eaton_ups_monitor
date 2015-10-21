@@ -134,19 +134,18 @@ int main(int argc,char *argv[]){
 	
 	GtkApplication *app;
 	int status;
-	app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
+	app = gtk_application_new ("org.gtk.ups_monitor", G_APPLICATION_FLAGS_NONE);
 	g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
 	g_signal_connect (app, "startup", G_CALLBACK (startup), NULL);
+	
+	//5.创建一个线程，用来发送接收串口数据
+	#ifndef NO_DATA_THREAD
+	HANDLE sendDataThreadProc=CreateThread(NULL,0,sendDataViaCom,NULL,0,NULL);
+	printf("Start data transmision\n");
+	#endif
+//	gtk_main();
 	status = g_application_run (G_APPLICATION (app), argc, argv);
 	g_object_unref (app);
-
-	return status;
-	
-	
-
-	//5.创建一个线程，用来发送接收串口数据
-	HANDLE sendDataThreadProc=CreateThread(NULL,0,sendDataViaCom,NULL,0,NULL);
-	gtk_main();
 	return 0;
 }
 

@@ -3,28 +3,38 @@
   <menu id="menubar">
     <submenu>
       <attribute name="label">文件</attribute>
-	  <section>
-		<item>
-			<attribute name="label">退出</attribute>
-		</item>
-	  </section>
+      <section>
+        <item>
+          <attribute name="label">退出</attribute>
+          <attribute name="action">app.quit</attribute>
+        </item>
+      </section>
     </submenu>
     <submenu>
-      <attribute name="label">选项</attribute>
-	  <section>
+      <attribute name="label">编辑</attribute>
+      <section>
+        <item>
+          <attribute name="label">报警阈值设置</attribute>
+          <attribute name="action">win.alarm_setting</attribute>
+        </item>
+        <item>
+          <attribute name="label">通信设置</attribute>
+          <attribute name="action">win.com_setting</attribute>
+        </item>
 		<item>
-			<attribute name="label">设置</attribute>
-		</item>
-		<item>
-			<attribute name="label">设备状态记录</attribute>
-		</item>
-	  </section>
+          <attribute name="label">查看异常记录</attribute>
+          <attribute name="action">win.exception_history</attribute>
+        </item>
+      </section>
     </submenu>
     <submenu>
       <attribute name="label">帮助</attribute>
-	  	<item>
-			<attribute name="label">关于</attribute>
-		</item>
+      <section>
+        <item>
+          <attribute name="label">关于</attribute>
+          <attribute name="action">win.about</attribute>
+        </item>
+      </section>
     </submenu>
   </menu>
 </interface>

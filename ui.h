@@ -33,6 +33,82 @@ void setFontColor(GtkWidget *widget,int fontSize,char * colorStr){
 }
 
 
+/* Callback function in which closes the about_dialog created below */
+static void
+on_close (GtkDialog *dialog,
+          gint       response_id,
+          gpointer   user_data)
+{
+  gtk_widget_destroy (GTK_WIDGET (dialog));
+}
+
+
+static void
+alarm_setting_cb (GtkDialog *dialog,
+          gint       response_id,
+          gpointer   user_data)
+{
+  printf("alarm_setting call\n");
+}
+
+static void
+com_setting_cb (GtkDialog *dialog,
+          gint       response_id,
+          gpointer   user_data)
+{
+  printf("com_setting call\n");
+}
+
+static void
+exception_history_cb (GtkDialog *dialog,
+          gint       response_id,
+          gpointer   user_data)
+{
+  printf("exception_history call\n");
+}
+
+/* Callback function for the about action (see aboutdialog.c example) */
+static void
+about_callback (GSimpleAction *simple,
+            GVariant      *parameter,
+            gpointer       user_data)
+{
+   GtkWidget *about_dialog;
+   about_dialog = gtk_about_dialog_new ();
+   const gchar *authors[] = {"wang weiqiang", NULL};
+   const gchar *documenters[] = {"wang weiqiang", NULL};
+
+   /* Fill in the about_dialog with the desired information */
+   gtk_about_dialog_set_program_name (GTK_ABOUT_DIALOG (about_dialog), "UPS Monitor");
+   gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (about_dialog), "Copyright \xc2\xa9 ");
+   gtk_about_dialog_set_authors (GTK_ABOUT_DIALOG (about_dialog), authors);
+   gtk_about_dialog_set_documenters (GTK_ABOUT_DIALOG (about_dialog), documenters);
+   gtk_about_dialog_set_website_label (GTK_ABOUT_DIALOG (about_dialog), "Mail:821819304@qq.com");
+   gtk_about_dialog_set_website (GTK_ABOUT_DIALOG (about_dialog), "www.2023.abrs.gov.cn");
+
+   /* The "response" signal is emitted when the dialog receives a delete event,
+    * therefore we connect that signal to the on_close callback function
+    * created above.
+    */
+   g_signal_connect (GTK_DIALOG (about_dialog), "response",
+                    G_CALLBACK (on_close), NULL);
+
+   /* Show the about dialog */
+   gtk_widget_show (about_dialog);
+}
+
+static void
+quit_callback (GSimpleAction *simple,
+            GVariant      *parameter,
+            gpointer       user_data)
+{
+	GApplication *application = user_data;
+	// kill sendDataViaCom thread
+	// exit_();
+	g_application_quit (application);
+}
+
+
 static void
 activate (GApplication *app,
          gpointer      user_data)
@@ -51,6 +127,12 @@ activate (GApplication *app,
 	GtkWidget *hbox;													//
 	GtkWidget *item;													//
 	GtkWidget *evenbox;													//
+	GtkWidget *volumn;
+	GtkWidget *vol_switcher;
+	GSimpleAction *about_action;
+	GSimpleAction *alarm_setting;
+	GSimpleAction *com_setting;
+	GSimpleAction *exception_history;
 	GError *error = NULL;	
 	extern GtkWidget *itemValue[4][11];									//
 	extern const char *frames[];										//
@@ -78,7 +160,7 @@ activate (GApplication *app,
 	}																		//
 	gtk_window_set_icon(GTK_WINDOW(mainWin),pixBuf);						//
 		
-	int frameCount=0;											//
+	int frameCount=0;														//
 	GdkColor valueBGColor;
 	//horizonAllUPS=gtk_hbox_new(TRUE,2);									//
 	horizonAllUPS=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);				//
@@ -106,6 +188,29 @@ activate (GApplication *app,
 			setFontColor(itemValue[frameCount][i],15,"green");									//
 			gtk_container_add(GTK_CONTAINER(evenbox),itemValue[frameCount][i]);					//
 		}
+		/*Create a label*/
+		volumn = gtk_label_new ("Volumn");
+		/*Create a switch with a default active state*/
+		vol_switcher = gtk_switch_new ();
+		gtk_switch_set_active (GTK_SWITCH (vol_switcher), TRUE);
+		
+		hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
+		gtk_box_set_homogeneous(GTK_BOX(hbox),TRUE);
+		gtk_box_pack_start(GTK_BOX(vbox),hbox,TRUE,TRUE,5);						//
+		//item=gtk_label_new(_G(items[i]));										//
+		volumn = gtk_label_new ("Volumn");
+		setFontColor(volumn,11,"blue");											//
+		gtk_box_pack_start(GTK_BOX(hbox),volumn,TRUE,TRUE,2);						//
+//		evenbox=gtk_event_box_new();											//
+//		gdk_color_parse("black",&valueBGColor);
+//		gtk_widget_modify_bg(evenbox, GTK_STATE_NORMAL, &valueBGColor);		//±³¾°ÑÕÉ«
+		gtk_box_pack_start(GTK_BOX(hbox),vol_switcher,TRUE,TRUE,2);					//
+//		itemValue[frameCount][i]=gtk_label_new("-- --");									//
+//		setFontColor(itemValue[frameCount][i],15,"green");									//
+//		gtk_container_add(GTK_CONTAINER(evenbox),vol_switcher);					//
+		
+		
+		
 		itemValue[frameCount][9] = gtk_info_bar_new ();
 		gtk_box_pack_start (GTK_BOX (vbox), itemValue[frameCount][9], FALSE, FALSE, 0);
 		gtk_info_bar_set_message_type (GTK_INFO_BAR (itemValue[frameCount][9]),\
@@ -115,6 +220,18 @@ activate (GApplication *app,
 			itemValue[frameCount][10], FALSE, FALSE, 0);
 	}
 	g_timeout_add(REFRESH_PER_X_SECONDS*1000,(GSourceFunc)refreshUI,NULL);
+	
+	about_action = g_simple_action_new ("about", NULL);
+	/* Connect the action to a callback function */
+	g_signal_connect (about_action, "activate", G_CALLBACK (about_callback),
+		GTK_WINDOW (mainWin));
+	/* Add it to the window */
+	g_action_map_add_action (G_ACTION_MAP (mainWin), G_ACTION (about_action));
+	
+	alarm_setting = g_simple_action_new ("alarm_setting",NULL);
+	g_signal_connect (alarm_setting,"activate",G_CALLBACK(alarm_setting_cb),GTK_WINDOW(mainWin));
+	g_action_map_add_action (G_ACTION_MAP(mainWin),G_ACTION(alarm_setting));
+	
 	gtk_widget_show_all(mainWin);
 }
 
@@ -122,9 +239,9 @@ static void
 startup(GApplication *app,
          gpointer      user_data){
 	  /* Initialize variables */
-  GtkBuilder *builder;
-
-  GError *error = NULL;
+	GtkBuilder *builder;
+	GSimpleAction *quit_action;
+	GError *error = NULL;
   /* A builder to add the User Interface designed with GLADE to the grid: */
   builder = gtk_builder_new ();
   /* Get the file (if it is there):
@@ -137,6 +254,12 @@ startup(GApplication *app,
      g_print ("%s\n", error->message);
      g_error_free (error);
   }
+  
+  	quit_action = g_simple_action_new("quit",NULL);
+	g_signal_connect (quit_action, "activate", G_CALLBACK (quit_callback),
+		GTK_WINDOW (app));
+	/* Add it to the window */
+	g_action_map_add_action (G_ACTION_MAP (app), G_ACTION (quit_action));	
 
   /* Extract the menubar */
   GObject *menubar = gtk_builder_get_object (builder, "menubar");
