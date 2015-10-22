@@ -90,7 +90,7 @@ int main(int argc,char *argv[]){
 	asciiToHex(UPS_CMD_42,UPS_CMD_42_DECODE);
 
 	//2.读取配置文件参数
-	_2023ups[0].LINK_COM_NUM=1;
+	_2023ups[0].LINK_COM_NUM=14;
 	_2023ups[1].LINK_COM_NUM=0;
 	_2023ups[2].LINK_COM_NUM=0;
 	_2023ups[3].LINK_COM_NUM=0;
@@ -106,7 +106,7 @@ int main(int argc,char *argv[]){
 	for(i=0;i<NUM_OF_UPS;i++){			//打开串口，配置相应参数
 		memset(com,0,20);
 		if(_2023ups[i].LINK_COM_NUM	>	0){		// _2023ups[i].LINK_COM_NUM从配置文件读取,>0有效	
-			sprintf(com,"COM%d",_2023ups[i].LINK_COM_NUM);
+			sprintf(com,"\\\\.\\COM%d",_2023ups[i].LINK_COM_NUM);
 			_2023ups[i].UPS_SET_ACTIVE=TRUE;
 		#ifdef _DEBUG_
 			printf("start com%d communication\n",_2023ups[i].LINK_COM_NUM);
@@ -187,7 +187,7 @@ DWORD WINAPI sendDataViaCom(void* dummy){
 				printf("重启com%d\n",_2023ups[i].LINK_COM_NUM);
 				closeCom(_2023ups[i].UPS_COM_HANDLE);
 				char com[10]={0};
-				sprintf(com,"COM%d",_2023ups[i].LINK_COM_NUM);
+				sprintf(com,"\\\\.\\COM%d",_2023ups[i].LINK_COM_NUM);
 				_2023ups[i].UPS_COM_HANDLE=initialCom(com,1024);
 //				COMMTIMEOUTS timeouts={5,15,15,1,1};
 				COMMTIMEOUTS timeouts={READ_INTERVAL,READ_MULTIPLIER,READ_CONSTANT,WRITE_MULTIPLIER,WRITE_CONSTANT};
