@@ -90,7 +90,7 @@ int main(int argc,char *argv[]){
 	asciiToHex(UPS_CMD_42,UPS_CMD_42_DECODE);
 
 	//2.读取配置文件参数
-	_2023ups[0].LINK_COM_NUM=14;
+	_2023ups[0].LINK_COM_NUM=1;
 	_2023ups[1].LINK_COM_NUM=0;
 	_2023ups[2].LINK_COM_NUM=0;
 	_2023ups[3].LINK_COM_NUM=0;
