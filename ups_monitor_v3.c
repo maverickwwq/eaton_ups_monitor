@@ -60,6 +60,11 @@
 #include "alarm.h"
 #endif
 
+#ifndef CONFIG_READER_H
+#define CONFIG_READER_H
+#include "config_reader.h"
+#endif
+
 
 //子线程1：调用函数-发送接收数据
 DWORD WINAPI	sendDataViaCom(void*);
@@ -90,10 +95,18 @@ int main(int argc,char *argv[]){
 	asciiToHex(UPS_CMD_42,UPS_CMD_42_DECODE);
 
 	//2.读取配置文件参数
-	_2023ups[0].LINK_COM_NUM=1;
-	_2023ups[1].LINK_COM_NUM=0;
-	_2023ups[2].LINK_COM_NUM=0;
-	_2023ups[3].LINK_COM_NUM=0;
+	int i=0;
+	char *value_buf=malloc(sizeof(MAX_CHAR_PER_PARA));
+	char *key_buf=malloc(sizeof(MAX_CHAR_PER_CONF));
+	KEY_VAL config_file;
+	analyzeConfFile("config",&config_file);
+	for(i=0;i<NUM_OF_UPS;i++){
+		sprintf(key_buf,"com_num_%d",i+1);
+		getValue(&config_file,key_buf,value_buf);
+		_2023ups[i].LINK_COM_NUM=atoi(value_buf);
+	}
+	printf("%d %d %d %d \n\n",_2023ups[0].LINK_COM_NUM,_2023ups[1].LINK_COM_NUM,_2023ups[2].LINK_COM_NUM,_2023ups[3].LINK_COM_NUM);
+
 
 #ifdef _DEBUG_
 	printf("DEBUG !!!!!!!!!!!!!!!!!!!!!!!\n\n\n");
@@ -101,7 +114,7 @@ int main(int argc,char *argv[]){
 	
 	
 	//3.初始化相应串口
-	int i=0;
+	i=0;
 	char com[20];
 	for(i=0;i<NUM_OF_UPS;i++){			//打开串口，配置相应参数
 		memset(com,0,20);
