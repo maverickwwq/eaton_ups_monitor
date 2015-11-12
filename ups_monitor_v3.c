@@ -24,10 +24,13 @@
 //
 //----------------------------------------------------
 
-
 #ifndef GLOBAL_VAR_H
 #define GLOBAL_VAR_H
 #include "global_var.h"
+#endif
+
+#ifdef _DEBUG_
+#include "leak_detector_c.h"
 #endif
 
 #ifndef SERIAL_H
@@ -79,6 +82,7 @@ extern UPS_STATE _2023ups[NUM_OF_UPS];//引用其他文件的全局变量
 extern GtkWidget *itemValue[4][11];
 
 int main(int argc,char *argv[]){
+	atexit(report_mem_leak);
 	//1.将发送的命令转换成正确的格式
 	asciiToHex(UPS_COMMUNICATION_INI,UPS_COMMUNICATION_INI_DECODE);
 	asciiToHex(UPS_CMD_ACCEPT,UPS_CMD_ACCEPT_DECODE);

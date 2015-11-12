@@ -189,7 +189,7 @@ activate (GApplication *app,
 			gtk_container_add(GTK_CONTAINER(evenbox),itemValue[frameCount][i]);					//
 		}
 		/*Create a label*/
-		volumn = gtk_label_new ("Volumn");
+		volumn = gtk_label_new (_G("…˘“Ù"));
 		/*Create a switch with a default active state*/
 		vol_switcher = gtk_switch_new ();
 		gtk_switch_set_active (GTK_SWITCH (vol_switcher), TRUE);
@@ -198,7 +198,7 @@ activate (GApplication *app,
 		gtk_box_set_homogeneous(GTK_BOX(hbox),TRUE);
 		gtk_box_pack_start(GTK_BOX(vbox),hbox,TRUE,TRUE,5);						//
 		//item=gtk_label_new(_G(items[i]));										//
-		volumn = gtk_label_new ("Volumn");
+		//volumn = gtk_label_new ("Volumn");
 		setFontColor(volumn,11,"blue");											//
 		gtk_box_pack_start(GTK_BOX(hbox),volumn,TRUE,TRUE,2);						//
 //		evenbox=gtk_event_box_new();											//
