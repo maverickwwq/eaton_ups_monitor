@@ -17,6 +17,14 @@
 #include <string.h>
 #endif
 
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
 //每行的最大字符数
 #define MAX_CHAR_PER_LINE 100
 #define MAX_CHAR_PER_PARA 40
@@ -65,7 +73,6 @@ char * ignoreSharp(char* src){
 	while( src[i] != NULL ){
 		if(src[i]=='#'){
 			*(src+i)=NULL;
-			//printf("%d\n",i);
 			break;
 		}
 		i++;
@@ -110,6 +117,7 @@ _Bool trimFile(const char *filePath,CONF_LINE **ptr){
 		return 1;
 }
 
+/*
 _Bool printCont(CONF_LINE *head){
 	CONF_LINE *ptr=head;
 	while(ptr!=NULL){
@@ -117,7 +125,7 @@ _Bool printCont(CONF_LINE *head){
 		ptr=ptr->next;
 	}
 	return 1;
-}
+}*/
 
 
 _Bool analyzeConfFile(char *filePath,KEY_VAL *key_value){
@@ -149,7 +157,7 @@ _Bool analyzeConfFile(char *filePath,KEY_VAL *key_value){
 	kv_pre->next=NULL;
 	free(kv_ptr);
 }
-
+/*
 _Bool printKeyValue(KEY_VAL *kv){
 	KEY_VAL *ptr=kv;
 	while(ptr!=NULL){
@@ -157,13 +165,18 @@ _Bool printKeyValue(KEY_VAL *kv){
 		ptr=ptr->next;
 	}
 	return 1;
-}
+}*/
 
-_Bool getValue(CONF_LINE *head,char *key,char *value){
-	CONF_LINE *ptr=head;
-	while(ptr !=NULL){
-		if(!strcmp(ptr->line_content,key)){
-			
+_Bool getValue(KEY_VAL *kv,const char *key,char *value){
+	if(kv == NULL || key == NULL )
+		return FALSE;
+	KEY_VAL *kv_ptr=kv;
+	while(kv_ptr != NULL){
+		if(!strcmp(kv_ptr->key,key)){
+			strcpy(value,kv_ptr->value);
+			return TRUE;
 		}
+		kv_ptr=kv_ptr->next;
 	}
+	return FALSE;
 }
