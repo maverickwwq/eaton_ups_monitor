@@ -17,18 +17,22 @@
 #include <string.h>
 #endif
 
+//每行的最大字符数
+#define MAX_CHAR_PER_LINE 100
+#define MAX_CHAR_PER_PARA 40
+#define MAX_CHAR_PER_CONF 40
 //2015.10.21 kimi wang
 
 //该结构体用来保存配置文件每行的字符串
 typedef struct conf_line {
-	char line_content[100];
+	char line_content[MAX_CHAR_PER_LINE];
 	struct conf_line *next;
 } CONF_LINE;
 
 //该结构体用来保存参数名、数值
 typedef struct conf_key_val {
-	char key[30];
-	char value[30];
+	char key[MAX_CHAR_PER_PARA];
+	char value[MAX_CHAR_PER_CONF];
 	struct conf_key_val *next;
 } KEY_VAL;
 
@@ -36,7 +40,7 @@ typedef struct conf_key_val {
 //该函数用来清除字符串中的空白字符
 char* trimf(const char* src){
 	int i=0,j=0;
-	char *buf=(char*)malloc(80);
+	char *buf=(char*)malloc(MAX_CHAR_PER_LINE);
 	while(src[i]!= NULL){
 		switch(src[i]){
 			case ' '	:
@@ -53,13 +57,15 @@ char* trimf(const char* src){
 	return buf;
 }
 
+
+
 //
 char * ignoreSharp(char* src){
 	int i=0;
 	while( src[i] != NULL ){
 		if(src[i]=='#'){
-			src[i]==NULL;
-			i++;
+			*(src+i)=NULL;
+			//printf("%d\n",i);
 			break;
 		}
 		i++;
@@ -69,10 +75,10 @@ char * ignoreSharp(char* src){
 
 
 
-//该函数用来将配置文件中的字符串转换成CONF_LINE的结构体中
+//该函数用来将配置文件中的字符串转换成存放在CONF_LINE的结构体中
 _Bool trimFile(const char *filePath,CONF_LINE **ptr){
 		FILE *fp=fopen(filePath,"r");
-		char *buf=(char*)malloc(81);
+		char *buf=(char*)malloc(MAX_CHAR_PER_LINE+1);
 		char *s_trim=NULL;
 		CONF_LINE *previous=NULL,*current=NULL,*next=NULL,*head=NULL;
 		if(fp == NULL){
@@ -83,7 +89,7 @@ _Bool trimFile(const char *filePath,CONF_LINE **ptr){
 			*ptr=head;
 			current=head;
 			previous=NULL;
-			while(fgets(buf,81,fp) != NULL){
+			while(fgets(buf,MAX_CHAR_PER_LINE+1,fp) != NULL){
 				s_trim=trimf(buf);
 				ignoreSharp(s_trim);
 				if(s_trim[0]==NULL){
@@ -115,31 +121,30 @@ _Bool printCont(CONF_LINE *head){
 
 
 _Bool analyzeConfFile(char *filePath,KEY_VAL *key_value){
-	
 	//trim empty characters
-	CONF_LINE *ptr=NULL,*head;
-	trimFile(filePath,&ptr);
-	head=ptr;
+	CONF_LINE *conf_ptr=NULL,*head=NULL;
+	memset(key_value,0,sizeof(KEY_VAL));
+	trimFile(filePath,&conf_ptr);
+	head=conf_ptr;
 	//split by '='
-	ptr=head;
+//	ptr=head;
 	KEY_VAL *kv_ptr=key_value,*kv_pre=NULL;
 	int i=0;
-	while(ptr!=NULL){
+	while(conf_ptr!=NULL){
 		i=0;
-		memset(kv_ptr->key,0,30);
-		memset(kv_ptr->value,0,30);
-		while(ptr->line_content[i] != NULL){
-			if(ptr->line_content[i] == '='){
-				memcpy(kv_ptr->key	,&(ptr->line_content[0]),i);
-				strcpy(kv_ptr->value,&(ptr->line_content[i+1]));
+		while(conf_ptr->line_content[i] != NULL){
+			if(conf_ptr->line_content[i] == '='){
+				memcpy(kv_ptr->key	,&(conf_ptr->line_content[0]),i);
+				strcpy(kv_ptr->value,&(conf_ptr->line_content[i+1]));
 				kv_ptr->next=(KEY_VAL*)malloc(sizeof(KEY_VAL));
+				memset(kv_ptr->next,0,sizeof(KEY_VAL));
 				kv_pre=kv_ptr;
 				kv_ptr=kv_pre->next;
 				break;
 			}
 			i++;
 		}		
-		ptr=ptr->next;
+		conf_ptr=conf_ptr->next;
 	}
 	kv_pre->next=NULL;
 	free(kv_ptr);
