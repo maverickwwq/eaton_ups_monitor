@@ -1,7 +1,8 @@
 #define UPSINFO_STRUCTURE_H
 
 #ifndef WINDOWS_H
-#define _WIN32_WINNT 0x0400	
+#define WINVER 0x0501
+#define _WIN32_WINNT 0x0501
 #include <windows.h>
 #endif
 
@@ -23,6 +24,11 @@ typedef struct	_UPS_STATE {
 	//--------------------ups总体信息----------------------------------------------
 	char	UPS_NAME[40];			//UPS标示符
 	HANDLE	UPS_COM_HANDLE;			//该UPS占用的COM口HANDLE
+	int 	READ_INTERVAL;			//----------------
+	int		READ_MULTIPLIER;		//				  |	
+	int		READ_CONSTANT;			//				  |---该ups使用的串口所使用的相应参数
+	int 	WRITE_MULTIPLIER;		//				  |
+	int 	WRITE_CONSTANT;			//----------------
 	_Bool	UPS_SET_ACTIVE;			//UPS是否被设置为启用
 	_Bool	UPS_COMMUNICATE_NORMAL;	//通信正常
 	_Bool	UPS_ERROR;				//TRUE FOR error,FALSE FOR NORMAL

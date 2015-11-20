@@ -114,6 +114,7 @@ _Bool trimFile(const char *filePath,CONF_LINE **ptr){
 			free(next);
 		}
 		free(buf);
+		fclose(fp);
 		return 1;
 }
 
@@ -130,7 +131,7 @@ _Bool printCont(CONF_LINE *head){
 
 _Bool analyzeConfFile(char *filePath,KEY_VAL *key_value){
 	//trim empty characters
-	CONF_LINE *conf_ptr=NULL,*head=NULL;
+	CONF_LINE *conf_ptr=NULL,*head=NULL,*conf_ptr_cur;
 	memset(key_value,0,sizeof(KEY_VAL));
 	trimFile(filePath,&conf_ptr);
 	head=conf_ptr;
@@ -151,8 +152,10 @@ _Bool analyzeConfFile(char *filePath,KEY_VAL *key_value){
 				break;
 			}
 			i++;
-		}		
+		}
+		conf_ptr_cur=conf_ptr;
 		conf_ptr=conf_ptr->next;
+		free(conf_ptr_cur);
 	}
 	kv_pre->next=NULL;
 	free(kv_ptr);

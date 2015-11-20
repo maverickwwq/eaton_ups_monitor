@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define _DEBUG_							//调试用，不调试时需要注释掉
+//#define _DEBUG_							//调试用，不调试时需要注释掉
 
 //---------------------------------------------------
 //   2015/6/4
@@ -23,6 +23,7 @@
 //
 //
 //----------------------------------------------------
+
 
 #ifndef GLOBAL_VAR_H
 #define GLOBAL_VAR_H
@@ -82,7 +83,9 @@ extern UPS_STATE _2023ups[NUM_OF_UPS];//引用其他文件的全局变量
 extern GtkWidget *itemValue[4][11];
 
 int main(int argc,char *argv[]){
+	#ifdef _DEBUG_
 	atexit(report_mem_leak);
+	#endif
 	//1.将发送的命令转换成正确的格式
 	asciiToHex(UPS_COMMUNICATION_INI,UPS_COMMUNICATION_INI_DECODE);
 	asciiToHex(UPS_CMD_ACCEPT,UPS_CMD_ACCEPT_DECODE);
@@ -102,15 +105,40 @@ int main(int argc,char *argv[]){
 	int i=0;
 	char *value_buf=malloc(sizeof(MAX_CHAR_PER_PARA));
 	char *key_buf=malloc(sizeof(MAX_CHAR_PER_CONF));
-	KEY_VAL config_file;
+	KEY_VAL config_file,*config_file_ptr1=&config_file,*config_file_ptr2=NULL;
 	analyzeConfFile("config",&config_file);
 	for(i=0;i<NUM_OF_UPS;i++){
 		sprintf(key_buf,"com_num_%d",i+1);
 		getValue(&config_file,key_buf,value_buf);
-		_2023ups[i].LINK_COM_NUM=atoi(value_buf);
+		_2023ups[i].LINK_COM_NUM=atoi(value_buf);//
+		sprintf(key_buf,"READ_INTERVAL_UPS%d",i+1);
+		getValue(&config_file,key_buf,value_buf);
+		_2023ups[i].READ_INTERVAL=atoi(value_buf);//
+		sprintf(key_buf,"READ_MULTIPLIER_UPS%d",i+1);
+		getValue(&config_file,key_buf,value_buf);
+		_2023ups[i].READ_MULTIPLIER=atoi(value_buf);//
+		sprintf(key_buf,"READ_CONSTANT_UPS%d",i+1);
+		getValue(&config_file,key_buf,value_buf);
+		_2023ups[i].READ_CONSTANT=atoi(value_buf);//
+		sprintf(key_buf,"WRITE_MULTIPLIER_UPS%d",i+1);
+		getValue(&config_file,key_buf,value_buf);
+		_2023ups[i].WRITE_MULTIPLIER=atoi(value_buf);//
+		sprintf(key_buf,"WRITE_CONSTANT_UPS%d",i+1);
+		getValue(&config_file,key_buf,value_buf);
+		_2023ups[i].WRITE_CONSTANT=atoi(value_buf);//
 	}
-	printf("%d %d %d %d \n\n",_2023ups[0].LINK_COM_NUM,_2023ups[1].LINK_COM_NUM,_2023ups[2].LINK_COM_NUM,_2023ups[3].LINK_COM_NUM);
-
+	printf("%d %d %d %d\n\n",_2023ups[0].LINK_COM_NUM,_2023ups[1].LINK_COM_NUM,_2023ups[2].LINK_COM_NUM,_2023ups[3].LINK_COM_NUM);
+	for(i=0;i<NUM_OF_UPS;i++){
+		printf("%d %d %d %d %d\n",_2023ups[i].READ_INTERVAL,_2023ups[i].READ_MULTIPLIER,_2023ups[i].READ_CONSTANT,\
+		_2023ups[i].WRITE_MULTIPLIER,_2023ups[i].WRITE_CONSTANT);
+	}
+	free(value_buf);
+	free(key_buf);
+	while(config_file_ptr1!=NULL){
+		config_file_ptr2=config_file_ptr1;
+		config_file_ptr1=config_file_ptr1->next;
+		free(config_file_ptr2);
+	}
 
 #ifdef _DEBUG_
 	printf("DEBUG !!!!!!!!!!!!!!!!!!!!!!!\n\n\n");
@@ -131,10 +159,11 @@ int main(int argc,char *argv[]){
 			_2023ups[i].UPS_COM_HANDLE=initialCom(com,1024);
 			if(_2023ups[i].UPS_COM_HANDLE == INVALID_HANDLE_VALUE){
 				//需要加入异常处理及日志记录
-				printf("Open Com Error\n");
+				printf("Open Com Error shit\n");
 				exit(0);
 			}
-			COMMTIMEOUTS timeouts={READ_INTERVAL,READ_MULTIPLIER,READ_CONSTANT,WRITE_MULTIPLIER,WRITE_CONSTANT};
+			COMMTIMEOUTS timeouts={_2023ups[i].READ_INTERVAL,_2023ups[i].READ_MULTIPLIER,\
+				_2023ups[i].READ_CONSTANT,_2023ups[i].WRITE_MULTIPLIER,_2023ups[i].WRITE_CONSTANT};
 			if(setComTimeout(_2023ups[i].UPS_COM_HANDLE,timeouts))
 				printf("set com timeout ok\n");
 				//需要加入异常处理及日志记录
@@ -160,7 +189,6 @@ int main(int argc,char *argv[]){
 	HANDLE sendDataThreadProc=CreateThread(NULL,0,sendDataViaCom,NULL,0,NULL);
 	printf("Start data transmision\n");
 	#endif
-//	gtk_main();
 	status = g_application_run (G_APPLICATION (app), argc, argv);
 	g_object_unref (app);
 	return 0;
@@ -186,8 +214,9 @@ DWORD WINAPI sendDataViaCom(void* dummy){
 	int i=0;
 	DWORD tryTime;
 	while(1){
-	Sleep(15000);
+	Sleep(15000);						//
 	for(i=0;i<NUM_OF_UPS;i++){
+		if(_2023ups[i].UPS_SET_ACTIVE == TRUE){
 		tryTime=CHECK_TIME;
 	start_commu:
 		//测试通信是否正常
@@ -207,7 +236,8 @@ DWORD WINAPI sendDataViaCom(void* dummy){
 				sprintf(com,"\\\\.\\COM%d",_2023ups[i].LINK_COM_NUM);
 				_2023ups[i].UPS_COM_HANDLE=initialCom(com,1024);
 //				COMMTIMEOUTS timeouts={5,15,15,1,1};
-				COMMTIMEOUTS timeouts={READ_INTERVAL,READ_MULTIPLIER,READ_CONSTANT,WRITE_MULTIPLIER,WRITE_CONSTANT};
+				COMMTIMEOUTS timeouts={_2023ups[i].READ_INTERVAL,_2023ups[i].READ_MULTIPLIER,\
+					_2023ups[i].READ_CONSTANT,_2023ups[i].WRITE_MULTIPLIER,_2023ups[i].WRITE_CONSTANT};
 				if(setComTimeout(_2023ups[i].UPS_COM_HANDLE,timeouts))
 					printf("set com timeout ok\n");//需要加入异常处理及日志记录
 				if(setComPara(_2023ups[i].UPS_COM_HANDLE,_24_N_8_1))
@@ -458,6 +488,7 @@ Sleep(1000);
 			_2023ups[i].CMD_42_CHECK=FALSE;
 		}
  	}
+	}
 }
 	return 0;
 }
