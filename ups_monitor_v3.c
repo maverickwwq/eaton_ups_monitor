@@ -176,22 +176,25 @@ int main(int argc,char *argv[]){
 		}
 	}
 
-//	startup(NULL,NULL);
-	
+printf("fuck you\n");
 	GtkApplication *app;
 	int status;
-	app = gtk_application_new ("org.gtk.ups_monitor", G_APPLICATION_FLAGS_NONE);
+printf("fuck you\n");
+	app = gtk_application_new ("org.fuckfuckfuckfuckfuckfuckfuckfuck", G_APPLICATION_FLAGS_NONE);
+printf("fuck you\n");
 	g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+printf("fuck you\n");
 	g_signal_connect (app, "startup", G_CALLBACK (startup), NULL);
-	
+printf("fuck you\n");	
 	//5.创建一个线程，用来发送接收串口数据
-	#ifndef NO_DATA_THREAD
+//	#ifndef NO_DATA_THREAD
 	HANDLE sendDataThreadProc=CreateThread(NULL,0,sendDataViaCom,NULL,0,NULL);
 	printf("Start data transmision\n");
-	#endif
+//	#endif
 	status = g_application_run (G_APPLICATION (app), argc, argv);
+printf("fuck you\n");
 	g_object_unref (app);
-	return 0;
+	while(0){}
 }
 
 

@@ -114,12 +114,14 @@ activate (GApplication *app,
          gpointer      user_data)
 {
 		//	4.图形界面代码
-	if(!gtk_init_check(NULL,NULL)){
+//	if(!gtk_init_check(NULL,NULL)){
 //		g_thread_init(NULL);
-		printf("窗口系统无法初始化\n");
-		exit(0);
-	}
+//		printf("窗口系统无法初始化\n");
+//		exit(0);
+//	}
 //	GtkWidget *window;
+
+
 	GtkWidget *mainWin;													//主窗口
 	GtkWidget *horizonAllUPS;											//
 	GtkWidget *frame;													//
@@ -130,7 +132,7 @@ activate (GApplication *app,
 	GtkWidget *volumn;
 	GtkWidget *vol_switcher;
 	GSimpleAction *about_action;
-	GSimpleAction *alarm_setting;
+	GSimpleAction *alarm_setting_action;
 	GSimpleAction *com_setting;
 	GSimpleAction *exception_history;
 	GError *error = NULL;	
@@ -138,19 +140,13 @@ activate (GApplication *app,
 	extern const char *frames[];										//
 	extern const char *items[];											//
 
-	  /* Create a window with a title and a default size */
 	mainWin = gtk_application_window_new (app);
 	gtk_window_set_title (GTK_WINDOW (mainWin), _G("2023台节传UPS警示系统"));
 	gtk_window_set_default_size (GTK_WINDOW (mainWin), 1024, 640);
-
-//	mainWin=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-//	gtk_window_set_title(GTK_WINDOW(mainWin),_G("2023台节传UPS警示系统"));	//主窗口
 	gtk_window_set_resizable(GTK_WINDOW(mainWin),TRUE);						//可改变大小
-//	gtk_window_set_default_size(GTK_WINDOW(mainWin),1000,640);				//窗口大小
-	gtk_window_set_position(GTK_WINDOW(mainWin),GTK_WIN_POS_CENTER);		//居中
-		
+	gtk_window_set_position(GTK_WINDOW(mainWin),GTK_WIN_POS_CENTER);		//居中	
 	gtk_container_set_border_width(GTK_CONTAINER(mainWin),6);				//边界大小
-//	g_signal_connect(mainWin,"destroy",G_CALLBACK(destroyEvent),NULL);		//销毁函数
+/*	
 	GdkPixbuf *pixBuf;														//设置小图标													//
 	pixBuf=gdk_pixbuf_new_from_file("icons/battery.png",&error);			//图标路径
 	if(!pixBuf){															//
@@ -188,9 +184,7 @@ activate (GApplication *app,
 			setFontColor(itemValue[frameCount][i],15,"green");									//
 			gtk_container_add(GTK_CONTAINER(evenbox),itemValue[frameCount][i]);					//
 		}
-		/*Create a label*/
 		volumn = gtk_label_new (_G("声音"));
-		/*Create a switch with a default active state*/
 		vol_switcher = gtk_switch_new ();
 		gtk_switch_set_active (GTK_SWITCH (vol_switcher), TRUE);
 		
@@ -222,44 +216,44 @@ activate (GApplication *app,
 	g_timeout_add(REFRESH_PER_X_SECONDS*1000,(GSourceFunc)refreshUI,NULL);
 	
 	about_action = g_simple_action_new ("about", NULL);
-	/* Connect the action to a callback function */
 	g_signal_connect (about_action, "activate", G_CALLBACK (about_callback),
 		GTK_WINDOW (mainWin));
-	/* Add it to the window */
 	g_action_map_add_action (G_ACTION_MAP (mainWin), G_ACTION (about_action));
 	
-	alarm_setting = g_simple_action_new ("alarm_setting",NULL);
-	g_signal_connect (alarm_setting,"activate",G_CALLBACK(alarm_setting_cb),GTK_WINDOW(mainWin));
-	g_action_map_add_action (G_ACTION_MAP(mainWin),G_ACTION(alarm_setting));
-	
+	alarm_setting_action = g_simple_action_new ("alarm_setting",NULL);
+	g_signal_connect (alarm_setting_action,"activate",G_CALLBACK(alarm_setting_cb),GTK_WINDOW(mainWin));
+	g_action_map_add_action (G_ACTION_MAP(mainWin),G_ACTION(alarm_setting_action));
+	*/
 	gtk_widget_show_all(mainWin);
 }
 
 static void 
 startup(GApplication *app,
          gpointer      user_data){
-	  /* Initialize variables */
-	GtkBuilder *builder;
+	/* Initialize variables */
 	GSimpleAction *quit_action;
+	GtkBuilder *builder;
 	GError *error = NULL;
-  /* A builder to add the User Interface designed with GLADE to the grid: */
-  builder = gtk_builder_new ();
-  /* Get the file (if it is there):
-   * Note: you must make sure that the file is in the current directory for
-   * this to work. The function used here returns a non-null value within
-   * our variable "error" if an error is indeed found.
-   */
-  gtk_builder_add_from_file (builder, "menubar.ui", &error);
-  if (error != NULL) {
-     g_print ("%s\n", error->message);
-     g_error_free (error);
-  }
-  
-  	quit_action = g_simple_action_new("quit",NULL);
+	  	
+	quit_action = g_simple_action_new("quit",NULL);
 	g_signal_connect (quit_action, "activate", G_CALLBACK (quit_callback),
 		GTK_WINDOW (app));
 	/* Add it to the window */
 	g_action_map_add_action (G_ACTION_MAP (app), G_ACTION (quit_action));	
+	
+	
+	/* A builder to add the User Interface designed with GLADE to the grid: */
+	builder = gtk_builder_new ();
+	/* Get the file (if it is there):
+	* Note: you must make sure that the file is in the current directory for
+	* this to work. The function used here returns a non-null value within
+	* our variable "error" if an error is indeed found.
+	*/
+	gtk_builder_add_from_file (builder, "menubar.ui", &error);
+	if (error != NULL) {
+		g_print ("%s\n", error->message);
+		g_error_free (error);
+	}
 
   /* Extract the menubar */
   GObject *menubar = gtk_builder_get_object (builder, "menubar");
