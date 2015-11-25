@@ -107,8 +107,8 @@ int main(int argc,char *argv[]){
 	char *key_buf=malloc(sizeof(MAX_CHAR_PER_CONF));
 	KEY_VAL config_file,*config_file_ptr1=&config_file,*config_file_ptr2=NULL;
 	analyzeConfFile("config",&config_file);
-	for(i=0;i<NUM_OF_UPS;i++){
-/*		sprintf(key_buf,"com_num_%d",i+1);
+/*	for(i=0;i<NUM_OF_UPS;i++){
+		sprintf(key_buf,"com_num_%d",i+1);
 		getValue(&config_file,key_buf,value_buf);
 		_2023ups[i].LINK_COM_NUM=atoi(value_buf);//
 		sprintf(key_buf,"READ_INTERVAL_UPS%d",i+1);
@@ -126,8 +126,7 @@ int main(int argc,char *argv[]){
 		sprintf(key_buf,"WRITE_CONSTANT_UPS%d",i+1);
 		getValue(&config_file,key_buf,value_buf);
 		_2023ups[i].WRITE_CONSTANT=atoi(value_buf);//
-*/
-	}
+	}*/
 	printf("%d %d %d %d\n\n",_2023ups[0].LINK_COM_NUM,_2023ups[1].LINK_COM_NUM,_2023ups[2].LINK_COM_NUM,_2023ups[3].LINK_COM_NUM);
 	for(i=0;i<NUM_OF_UPS;i++){
 		printf("%d %d %d %d %d\n",_2023ups[i].READ_INTERVAL,_2023ups[i].READ_MULTIPLIER,_2023ups[i].READ_CONSTANT,\
