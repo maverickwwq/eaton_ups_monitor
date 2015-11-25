@@ -102,13 +102,13 @@ int main(int argc,char *argv[]){
 	asciiToHex(UPS_CMD_42,UPS_CMD_42_DECODE);
 
 	//2.读取配置文件参数
-	int i=0;/*
+	int i=0;
 	char *value_buf=malloc(sizeof(MAX_CHAR_PER_PARA));
 	char *key_buf=malloc(sizeof(MAX_CHAR_PER_CONF));
 	KEY_VAL config_file,*config_file_ptr1=&config_file,*config_file_ptr2=NULL;
 	analyzeConfFile("config",&config_file);
 	for(i=0;i<NUM_OF_UPS;i++){
-		sprintf(key_buf,"com_num_%d",i+1);
+/*		sprintf(key_buf,"com_num_%d",i+1);
 		getValue(&config_file,key_buf,value_buf);
 		_2023ups[i].LINK_COM_NUM=atoi(value_buf);//
 		sprintf(key_buf,"READ_INTERVAL_UPS%d",i+1);
@@ -126,6 +126,7 @@ int main(int argc,char *argv[]){
 		sprintf(key_buf,"WRITE_CONSTANT_UPS%d",i+1);
 		getValue(&config_file,key_buf,value_buf);
 		_2023ups[i].WRITE_CONSTANT=atoi(value_buf);//
+*/
 	}
 	printf("%d %d %d %d\n\n",_2023ups[0].LINK_COM_NUM,_2023ups[1].LINK_COM_NUM,_2023ups[2].LINK_COM_NUM,_2023ups[3].LINK_COM_NUM);
 	for(i=0;i<NUM_OF_UPS;i++){
@@ -143,7 +144,6 @@ int main(int argc,char *argv[]){
 #ifdef _DEBUG_
 	printf("DEBUG !!!!!!!!!!!!!!!!!!!!!!!\n\n\n");
 #endif
-	
 	
 	//3.初始化相应串口
 	i=0;
@@ -175,7 +175,7 @@ int main(int argc,char *argv[]){
 			_2023ups[i].UPS_SET_ACTIVE=FALSE;
 		}
 	}
-*/
+
 printf("fuck you\n");
 	GtkApplication *app;
 	int status;

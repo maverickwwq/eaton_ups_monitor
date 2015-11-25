@@ -68,10 +68,10 @@ char* trimf(const char* src){
 
 
 //
-char * ignoreSharp(char* src){
+char* ignoreSharp(char* src){
 	int i=0;
 	while( src[i] != NULL ){
-		if(src[i]=='#'){
+		if(src[i] == '#'){
 			*(src+i)=NULL;
 			break;
 		}
