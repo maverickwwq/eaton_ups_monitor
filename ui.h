@@ -146,7 +146,7 @@ activate (GApplication *app,
 	gtk_window_set_resizable(GTK_WINDOW(mainWin),TRUE);						//可改变大小
 	gtk_window_set_position(GTK_WINDOW(mainWin),GTK_WIN_POS_CENTER);		//居中	
 	gtk_container_set_border_width(GTK_CONTAINER(mainWin),6);				//边界大小
-/*	
+	
 	GdkPixbuf *pixBuf;														//设置小图标													//
 	pixBuf=gdk_pixbuf_new_from_file("icons/battery.png",&error);			//图标路径
 	if(!pixBuf){															//
@@ -223,7 +223,6 @@ activate (GApplication *app,
 	alarm_setting_action = g_simple_action_new ("alarm_setting",NULL);
 	g_signal_connect (alarm_setting_action,"activate",G_CALLBACK(alarm_setting_cb),GTK_WINDOW(mainWin));
 	g_action_map_add_action (G_ACTION_MAP(mainWin),G_ACTION(alarm_setting_action));
-	*/
 	gtk_widget_show_all(mainWin);
 }
 

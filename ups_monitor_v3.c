@@ -102,7 +102,7 @@ int main(int argc,char *argv[]){
 	asciiToHex(UPS_CMD_42,UPS_CMD_42_DECODE);
 
 	//2.读取配置文件参数
-	int i=0;
+	int i=0;/*
 	char *value_buf=malloc(sizeof(MAX_CHAR_PER_PARA));
 	char *key_buf=malloc(sizeof(MAX_CHAR_PER_CONF));
 	KEY_VAL config_file,*config_file_ptr1=&config_file,*config_file_ptr2=NULL;
@@ -175,7 +175,7 @@ int main(int argc,char *argv[]){
 			_2023ups[i].UPS_SET_ACTIVE=FALSE;
 		}
 	}
-
+*/
 printf("fuck you\n");
 	GtkApplication *app;
 	int status;
@@ -194,7 +194,7 @@ printf("fuck you\n");
 	status = g_application_run (G_APPLICATION (app), argc, argv);
 printf("fuck you\n");
 	g_object_unref (app);
-	while(0){}
+	return 0;
 }
 
 
