@@ -5,7 +5,6 @@
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
 #endif
-//#include <stdlib.h>
 
 #define _G(str)		g_convert(str,-1,"UTF-8","GB2312",NULL,NULL,NULL)
 
@@ -363,29 +362,48 @@ gboolean refreshUI(void *nothing){
 			//
 		}
 	}
-	
+	static _Bool ups_communicate_normal=TRUE,input_power_abnormal=FALSE,ups_error=FALSE;
 	//声音报警
 	for(i=0;i<NUM_OF_UPS;++i){
 		if(_2023ups[i].UPS_SET_ACTIVE	==	TRUE){	//初始化时会打开串口,尝试串口通信
 			if(_2023ups[i].UPS_COMMUNICATE_NORMAL){	//通信正常
+				if(!ups_communicate_normal){
+					ups_communicate_normal=TRUE;
+					exceptionLog(50,TRUE,i);
+				}
 				if(!_2023ups[i].INPUT_POWER_ABNORMAL){//市电正常
-					//
+					if(input_power_abnormal){
+						exceptionLog(3,TRUE,i);
+						input_power_abnormal=FALSE;
+					}
 				}
 				else{						//市电异常
-					gtk_info_bar_set_message_type(GTK_INFO_BAR (itemValue[i][9]),\
-						GTK_MESSAGE_WARNING);
-					gtk_label_set_text(GTK_LABEL(itemValue[i][10]),_G("市电异常"));
+					if(!input_power_abnormal){
+						exceptionLog(3,FALSE,i);
+						input_power_abnormal=TRUE;
+						gtk_info_bar_set_message_type(GTK_INFO_BAR (itemValue[i][9]),\
+							GTK_MESSAGE_WARNING);
+						gtk_label_set_text(GTK_LABEL(itemValue[i][10]),_G("市电异常"));
+					}					
 					makeSound(ALARM_INPUT_ERROR);
 					count++;
 					break;
 				}
 				if(!_2023ups[i].UPS_ERROR){	//ups正常
 					//
+					if(ups_error){
+						exceptionLog(4,TRUE,i);
+						ups_error=FALSE;
+					}
 				}
 				else{						//ups故障
-					gtk_info_bar_set_message_type(GTK_INFO_BAR (itemValue[i][9]),\
-						GTK_MESSAGE_ERROR);
-					gtk_label_set_text(GTK_LABEL(itemValue[i][10]),_G("UPS故障"));
+					if(!ups_error){
+						gtk_info_bar_set_message_type(GTK_INFO_BAR (itemValue[i][9]),\
+							GTK_MESSAGE_ERROR);
+						gtk_label_set_text(GTK_LABEL(itemValue[i][10]),_G("UPS故障"));
+						ups_error=TRUE;
+						exceptionLog(4,FALSE,i);
+					}
 					makeSound(ALARM_UPS_ERROR);
 					count++;
 					break;
@@ -396,9 +414,12 @@ gboolean refreshUI(void *nothing){
 				gtk_label_set_text(GTK_LABEL(itemValue[i][10]),_G("正常"));
 			}
 			else{							//通信异常
-				gtk_info_bar_set_message_type(GTK_INFO_BAR (itemValue[i][9]),\
-					GTK_MESSAGE_INFO);
-				gtk_label_set_text(GTK_LABEL(itemValue[i][10]),_G("通信异常"));
+				if(ups_communicate_normal){
+					ups_communicate_normal=FALSE;
+					gtk_info_bar_set_message_type(GTK_INFO_BAR (itemValue[i][9]),\
+						GTK_MESSAGE_INFO);
+					gtk_label_set_text(GTK_LABEL(itemValue[i][10]),_G("通信异常"));
+				}
 				makeSound(ALARM_NOT_CONNECT);
 				count++;
 				break;

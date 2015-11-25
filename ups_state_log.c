@@ -30,6 +30,9 @@
 //
 //
 
+
+//				"50"串口通信异常
+
 _Bool exceptionLog(int exceptionCode,_Bool exceptionSolved,int upsNo){
 	extern const char *frames[];
 	time_t time_seconds;
@@ -74,6 +77,9 @@ _Bool exceptionLog(int exceptionCode,_Bool exceptionSolved,int upsNo){
 		case 11:
 			fprintf(logFile," %s\t:ups旁路使能",frames[upsNo]);
 			break;
+		case 50:
+			fprintf(logFile," %s\t:ups通信故障",frames[upsNo]);
+			break;
 		default:
 			break;
 	}
@@ -92,5 +98,6 @@ _Bool softwareException(){
 
 int main(int argc,char *argv[]){
 	exceptionLog(1,TRUE,0);
+	exceptionLog(1,FALSE,0);
 	return 0;
 }
