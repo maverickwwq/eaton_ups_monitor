@@ -103,42 +103,63 @@ int main(int argc,char *argv[]){
 
 	//2.读取配置文件参数
 	int i=0;
-	char *value_buf=malloc(sizeof(MAX_CHAR_PER_PARA));
-	char *key_buf=malloc(sizeof(MAX_CHAR_PER_CONF));
+	char *value_buf=(char*)malloc(MAX_CHAR_PER_PARA);
+	printf("%d\n\n\n\n\n\n\n",MAX_CHAR_PER_PARA);
+	char *key_buf=(char*)malloc(MAX_CHAR_PER_CONF);
 	KEY_VAL config_file,*config_file_ptr1=&config_file,*config_file_ptr2=NULL;
 	analyzeConfFile("config",&config_file);
-/*	for(i=0;i<NUM_OF_UPS;i++){
+	for(i=0;i<NUM_OF_UPS;i++){
 		sprintf(key_buf,"com_num_%d",i+1);
 		getValue(&config_file,key_buf,value_buf);
+		printf("%s\n",key_buf);
+		printf("%s\n",value_buf);
 		_2023ups[i].LINK_COM_NUM=atoi(value_buf);//
+		
 		sprintf(key_buf,"READ_INTERVAL_UPS%d",i+1);
 		getValue(&config_file,key_buf,value_buf);
+				printf("%s\n",key_buf);
+		printf("%s\n",value_buf);
 		_2023ups[i].READ_INTERVAL=atoi(value_buf);//
+		
 		sprintf(key_buf,"READ_MULTIPLIER_UPS%d",i+1);
 		getValue(&config_file,key_buf,value_buf);
+				printf("%s\n",key_buf);
+		printf("%s\n",value_buf);
 		_2023ups[i].READ_MULTIPLIER=atoi(value_buf);//
+		
 		sprintf(key_buf,"READ_CONSTANT_UPS%d",i+1);
 		getValue(&config_file,key_buf,value_buf);
+				printf("%s\n",key_buf);
+		printf("%s\n",value_buf);
 		_2023ups[i].READ_CONSTANT=atoi(value_buf);//
+		
 		sprintf(key_buf,"WRITE_MULTIPLIER_UPS%d",i+1);
 		getValue(&config_file,key_buf,value_buf);
+				printf("%s\n",key_buf);
+		printf("%s\n",value_buf);
 		_2023ups[i].WRITE_MULTIPLIER=atoi(value_buf);//
+		
 		sprintf(key_buf,"WRITE_CONSTANT_UPS%d",i+1);
 		getValue(&config_file,key_buf,value_buf);
+				printf("%s\n",key_buf);
+		printf("%s\n",value_buf);
 		_2023ups[i].WRITE_CONSTANT=atoi(value_buf);//
-	}*/
+	}
 	printf("%d %d %d %d\n\n",_2023ups[0].LINK_COM_NUM,_2023ups[1].LINK_COM_NUM,_2023ups[2].LINK_COM_NUM,_2023ups[3].LINK_COM_NUM);
 	for(i=0;i<NUM_OF_UPS;i++){
 		printf("%d %d %d %d %d\n",_2023ups[i].READ_INTERVAL,_2023ups[i].READ_MULTIPLIER,_2023ups[i].READ_CONSTANT,\
 		_2023ups[i].WRITE_MULTIPLIER,_2023ups[i].WRITE_CONSTANT);
 	}
+printf("1\n");
 	free(value_buf);
+printf("2\n");
 	free(key_buf);
-	while(config_file_ptr1!=NULL){
+printf("3\n");
+/*	while(config_file_ptr1!=NULL){
 		config_file_ptr2=config_file_ptr1;
 		config_file_ptr1=config_file_ptr1->next;
 		free(config_file_ptr2);
-	}
+	}*/
 
 #ifdef _DEBUG_
 	printf("DEBUG !!!!!!!!!!!!!!!!!!!!!!!\n\n\n");

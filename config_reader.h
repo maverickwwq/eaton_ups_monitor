@@ -160,15 +160,6 @@ _Bool analyzeConfFile(char *filePath,KEY_VAL *key_value){
 	kv_pre->next=NULL;
 	free(kv_ptr);
 }
-/*
-_Bool printKeyValue(KEY_VAL *kv){
-	KEY_VAL *ptr=kv;
-	while(ptr!=NULL){
-		printf("key:%s value:%s\n",ptr->key,ptr->value);
-		ptr=ptr->next;
-	}
-	return 1;
-}*/
 
 _Bool getValue(KEY_VAL *kv,const char *key,char *value){
 	if(kv == NULL || key == NULL )
