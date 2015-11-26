@@ -6,6 +6,11 @@
 #include <gdk/gdk.h>
 #endif
 
+#ifndef UPS_STATE_LOG_H
+#define UPS_STATE_LOG_H
+#include "ups_state_log.h"
+#endif
+
 #define _G(str)		g_convert(str,-1,"UTF-8","GB2312",NULL,NULL,NULL)
 
 
@@ -72,55 +77,45 @@ about_callback (GSimpleAction *simple,
             GVariant      *parameter,
             gpointer       user_data)
 {
-   GtkWidget *about_dialog;
-   about_dialog = gtk_about_dialog_new ();
-   const gchar *authors[] = {"wang weiqiang", NULL};
-   const gchar *documenters[] = {"wang weiqiang", NULL};
+	   GtkWidget *about_dialog;
+	   about_dialog = gtk_about_dialog_new ();
+	   const gchar *authors[] = {"wang weiqiang", NULL};
+	   const gchar *documenters[] = {"wang weiqiang", NULL};
 
-   /* Fill in the about_dialog with the desired information */
-   gtk_about_dialog_set_program_name (GTK_ABOUT_DIALOG (about_dialog), "UPS Monitor");
-   gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (about_dialog), "Copyright \xc2\xa9 ");
-   gtk_about_dialog_set_authors (GTK_ABOUT_DIALOG (about_dialog), authors);
-   gtk_about_dialog_set_documenters (GTK_ABOUT_DIALOG (about_dialog), documenters);
-   gtk_about_dialog_set_website_label (GTK_ABOUT_DIALOG (about_dialog), "Mail:821819304@qq.com");
-   gtk_about_dialog_set_website (GTK_ABOUT_DIALOG (about_dialog), "www.2023.abrs.gov.cn");
+	   /* Fill in the about_dialog with the desired information */
+	   gtk_about_dialog_set_program_name (GTK_ABOUT_DIALOG (about_dialog), "UPS Monitor");
+	   gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (about_dialog), "Copyright \xc2\xa9 ");
+	   gtk_about_dialog_set_authors (GTK_ABOUT_DIALOG (about_dialog), authors);
+	   gtk_about_dialog_set_documenters (GTK_ABOUT_DIALOG (about_dialog), documenters);
+	   gtk_about_dialog_set_website_label (GTK_ABOUT_DIALOG (about_dialog), "Mail:821819304@qq.com");
+	   gtk_about_dialog_set_website (GTK_ABOUT_DIALOG (about_dialog), "www.2023.abrs.gov.cn");
 
-   /* The "response" signal is emitted when the dialog receives a delete event,
-    * therefore we connect that signal to the on_close callback function
-    * created above.
-    */
-   g_signal_connect (GTK_DIALOG (about_dialog), "response",
-                    G_CALLBACK (on_close), NULL);
+	   /* The "response" signal is emitted when the dialog receives a delete event,
+		* therefore we connect that signal to the on_close callback function
+		* created above.
+		*/
+	   g_signal_connect (GTK_DIALOG (about_dialog), "response",
+						G_CALLBACK (on_close), NULL);
 
-   /* Show the about dialog */
-   gtk_widget_show (about_dialog);
+	   /* Show the about dialog */
+	   gtk_widget_show (about_dialog);
 }
 
-static void
-quit_callback (GSimpleAction *simple,
-            GVariant      *parameter,
-            gpointer       user_data)
-{
-	GApplication *application = user_data;
-	// kill sendDataViaCom thread
-	// exit_();
-	g_application_quit (application);
-}
+	static void
+	quit_callback (GSimpleAction *simple,
+				GVariant      *parameter,
+				gpointer       user_data){
+		GApplication *application = user_data;
+		// kill sendDataViaCom thread
+		// exit_();
+		g_application_quit (application);
+	}
 
 
 static void
 activate (GApplication *app,
          gpointer      user_data)
 {
-		//	4.图形界面代码
-//	if(!gtk_init_check(NULL,NULL)){
-//		g_thread_init(NULL);
-//		printf("窗口系统无法初始化\n");
-//		exit(0);
-//	}
-//	GtkWidget *window;
-
-
 	GtkWidget *mainWin;													//主窗口
 	GtkWidget *horizonAllUPS;											//
 	GtkWidget *frame;													//
@@ -135,13 +130,13 @@ activate (GApplication *app,
 	GSimpleAction *com_setting;
 	GSimpleAction *exception_history;
 	GError *error = NULL;	
-	extern GtkWidget *itemValue[4][11];									//
-	extern const char *frames[];										//
-	extern const char *items[];											//
+	extern GtkWidget *itemValue[4][11];									//参数值
+	extern const char *frames[];										//监控设备名称
+	extern const char *items[];											//参数名
 
 	mainWin = gtk_application_window_new (app);
 	gtk_window_set_title (GTK_WINDOW (mainWin), _G("2023台节传UPS警示系统"));
-	gtk_window_set_default_size (GTK_WINDOW (mainWin), 1024, 640);
+	gtk_window_set_default_size (GTK_WINDOW (mainWin), 960, 640);
 	gtk_window_set_resizable(GTK_WINDOW(mainWin),TRUE);						//可改变大小
 	gtk_window_set_position(GTK_WINDOW(mainWin),GTK_WIN_POS_CENTER);		//居中	
 	gtk_container_set_border_width(GTK_CONTAINER(mainWin),6);				//边界大小
@@ -161,7 +156,7 @@ activate (GApplication *app,
 	horizonAllUPS=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);				//
 	gtk_container_add(GTK_CONTAINER(mainWin),horizonAllUPS);
 	gtk_container_add(GTK_CONTAINER(mainWin),horizonAllUPS);				//
-	for(frameCount=0;frameCount<4;frameCount++){							//
+	for(frameCount=0;frameCount<NUM_OF_UPS;frameCount++){							//
 		frame=gtk_frame_new(_G(frames[frameCount]));						//
 		gtk_box_pack_start(GTK_BOX(horizonAllUPS),frame,TRUE,TRUE,2);		//
 		//vbox=gtk_vbox_new(TRUE,10);										//
@@ -213,6 +208,7 @@ activate (GApplication *app,
 			itemValue[frameCount][10], FALSE, FALSE, 0);
 	}
 	g_timeout_add(REFRESH_PER_X_SECONDS*1000,(GSourceFunc)refreshUI,NULL);
+
 	
 	about_action = g_simple_action_new ("about", NULL);
 	g_signal_connect (about_action, "activate", G_CALLBACK (about_callback),
@@ -328,22 +324,27 @@ gboolean refreshUI(void *nothing){
 					}
 				}
 				if(_2023ups[i].CMD_42_CHECK){
+					setFontColor(itemValue[i][3],15,"green");
 					sprintf(buf,"%d V",_2023ups[i].INPUT_VOLTAGE);
 					gtk_label_set_text(GTK_LABEL(itemValue[i][3]),\
 						buf);
+					setFontColor(itemValue[i][4],15,"green");
 					sprintf(buf,"%d Hz",_2023ups[i].INPUT_FREQUENCY);
 					gtk_label_set_text(GTK_LABEL(itemValue[i][4]),\
 						buf);
 				}
 				if(_2023ups[i].CMD_06_CHECK){
+					setFontColor(itemValue[i][6],15,"green");
 					sprintf(buf,"%d %%",_2023ups[i].BATTERY_CAPACITY);
 					gtk_label_set_text(GTK_LABEL(itemValue[i][6]),\
 						buf);
 				}
 				if(_2023ups[i].CMD_42_CHECK){
+					setFontColor(itemValue[i][7],15,"green");
 					sprintf(buf,"%d V",_2023ups[i].OUTPUT_VOLTAGE);
 					gtk_label_set_text(GTK_LABEL(itemValue[i][7]),\
 						buf);
+					setFontColor(itemValue[i][8],15,"green");
 					sprintf(buf,"%d Hz",_2023ups[i].OUTPUT_FREQUENCY);
 					gtk_label_set_text(GTK_LABEL(itemValue[i][8]),\
 						buf);
@@ -369,30 +370,29 @@ gboolean refreshUI(void *nothing){
 			if(_2023ups[i].UPS_COMMUNICATE_NORMAL){	//通信正常
 				if(!ups_communicate_normal){
 					ups_communicate_normal=TRUE;
-					exceptionLog(50,TRUE,i);
+					conditionChangeLog(50,TRUE,i);
 				}
 				if(!_2023ups[i].INPUT_POWER_ABNORMAL){//市电正常
 					if(input_power_abnormal){
-						exceptionLog(3,TRUE,i);
+						conditionChangeLog(3,TRUE,i);
 						input_power_abnormal=FALSE;
 					}
 				}
 				else{						//市电异常
 					if(!input_power_abnormal){
-						exceptionLog(3,FALSE,i);
+						conditionChangeLog(3,FALSE,i);
 						input_power_abnormal=TRUE;
 						gtk_info_bar_set_message_type(GTK_INFO_BAR (itemValue[i][9]),\
 							GTK_MESSAGE_WARNING);
 						gtk_label_set_text(GTK_LABEL(itemValue[i][10]),_G("市电异常"));
 					}					
 					makeSound(ALARM_INPUT_ERROR);
-					count++;
-					break;
+					continue;
 				}
 				if(!_2023ups[i].UPS_ERROR){	//ups正常
 					//
 					if(ups_error){
-						exceptionLog(4,TRUE,i);
+						conditionChangeLog(4,TRUE,i);
 						ups_error=FALSE;
 					}
 				}
@@ -402,11 +402,10 @@ gboolean refreshUI(void *nothing){
 							GTK_MESSAGE_ERROR);
 						gtk_label_set_text(GTK_LABEL(itemValue[i][10]),_G("UPS故障"));
 						ups_error=TRUE;
-						exceptionLog(4,FALSE,i);
+						conditionChangeLog(4,FALSE,i);
 					}
 					makeSound(ALARM_UPS_ERROR);
-					count++;
-					break;
+					continue;
 				}
 				//所有都正常的话走执行这里
 				gtk_info_bar_set_message_type(GTK_INFO_BAR (itemValue[i][9]),\
@@ -416,13 +415,13 @@ gboolean refreshUI(void *nothing){
 			else{							//通信异常
 				if(ups_communicate_normal){
 					ups_communicate_normal=FALSE;
+					conditionChangeLog(50,FALSE,i);
 					gtk_info_bar_set_message_type(GTK_INFO_BAR (itemValue[i][9]),\
 						GTK_MESSAGE_INFO);
 					gtk_label_set_text(GTK_LABEL(itemValue[i][10]),_G("通信异常"));
 				}
 				makeSound(ALARM_NOT_CONNECT);
-				count++;
-				break;
+				continue;
 			}
 		}
 	}

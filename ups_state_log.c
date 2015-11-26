@@ -1,4 +1,7 @@
+#ifndef STDIO_H
+#define STDIO_H
 #include <stdio.h>
+#endif
 
 #ifndef GLOBAL_VAR_H
 #define GLOBAL_VAR_H
@@ -94,10 +97,4 @@ _Bool exceptionLog(int exceptionCode,_Bool exceptionSolved,int upsNo){
 
 _Bool softwareException(){
 	return 1;
-}
-
-int main(int argc,char *argv[]){
-	exceptionLog(1,TRUE,0);
-	exceptionLog(1,FALSE,0);
-	return 0;
 }
