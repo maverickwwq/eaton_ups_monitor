@@ -208,7 +208,6 @@ activate (GApplication *app,
 			itemValue[frameCount][10], FALSE, FALSE, 0);
 	}
 	g_timeout_add(REFRESH_PER_X_SECONDS*1000,(GSourceFunc)refreshUI,NULL);
-
 	
 	about_action = g_simple_action_new ("about", NULL);
 	g_signal_connect (about_action, "activate", G_CALLBACK (about_callback),
@@ -273,8 +272,8 @@ gboolean refreshUI(void *nothing){
 // 	return 0;
 //	gdk_threads_enter();
 //	g_type_init();
-	static unsigned int count=0;
-	int i=0,j=0;
+//	static unsigned int count=0;
+
 /*
 	printf("\n--------------------------------------------\n");
 	printf("--------------------------------------------\n");
@@ -289,7 +288,7 @@ gboolean refreshUI(void *nothing){
 */
 	extern GtkWidget *itemValue[4][11];
 	char buf[25];
-	
+	int i=0,j=0;
 	for(i=0;i<NUM_OF_UPS;++i){
 		if(_2023ups[i].UPS_SET_ACTIVE	==	TRUE){	// 
 			if(_2023ups[i].UPS_COMMUNICATE_NORMAL){
@@ -420,6 +419,7 @@ gboolean refreshUI(void *nothing){
 						GTK_MESSAGE_INFO);
 					gtk_label_set_text(GTK_LABEL(itemValue[i][10]),_G("Í¨ÐÅÒì³£"));
 				}
+				makeSound(ALARM_UPS_ERROR);
 				makeSound(ALARM_NOT_CONNECT);
 				continue;
 			}
