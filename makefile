@@ -7,4 +7,4 @@ ups_monitor_v3.o: ups_monitor_v3.c
 dbug:
 	gcc ups_monitor_v3.c leak_detector_c.c --std c99 `pkg-config gtk+-3.0 --cflags --libs` -o ups_monitor_v3_debug.exe -lwinmm -Wall -D _DEBUG_ 
 exe:
-	gcc ups_monitor_v3.c --std c99 `pkg-config gtk+-3.0 --cflags --libs` -o ups_monitor_v3.exe -lwinmm -Wall -mwindows
+	gcc ups_monitor_v3.c --std c99 `pkg-config gtk+-3.0 --cflags --libs` -o ups_monitor_v3.exe -lwinmm -Wall
