@@ -26,6 +26,7 @@
 // 2015/11/27
 // ups_monitor_v3.c line:170 ,line:252需要更人性化提示
 // 图形界面：声音单独控制
+// 系统初始化时误报警
 //
 //----------------------------------------------------
 
@@ -84,8 +85,8 @@ DWORD WINAPI	sendDataViaCom(void*);
 //void _atExit();
 
 
-extern UPS_STATE _2023ups[NUM_OF_UPS];//引用其他文件的全局变量
-extern GtkWidget *itemValue[4][11];
+//extern UPS_STATE _2023ups[NUM_OF_UPS];//引用其他文件的全局变量
+//extern GtkWidget *itemValue[4][11];
 
 int main(int argc,char *argv[]){
 	#ifdef _DEBUG_
@@ -107,12 +108,11 @@ int main(int argc,char *argv[]){
 	asciiToHex(UPS_CMD_42,UPS_CMD_42_DECODE);
 
 	//2.读取配置文件参数
-	int i=0;
-	char *value_buf=(char*)malloc(MAX_CHAR_PER_PARA);
-	char *key_buf=(char*)malloc(MAX_CHAR_PER_CONF);
+	char *value_buf	=	(char*)	malloc(MAX_CHAR_PER_PARA);
+	char *key_buf	=	(char*)	malloc(MAX_CHAR_PER_CONF);
 	KEY_VAL config_file,	*config_file_ptr1=&config_file,	*config_file_ptr2=NULL;
 	analyzeConfFile("config",&config_file);
-	for(i=0;i<NUM_OF_UPS;i++){
+	for(int i=0;i<NUM_OF_UPS;i++){
 		sprintf(key_buf,"com_num_%d",i+1);
 		getValue(&config_file,key_buf,value_buf);
 		_2023ups[i].LINK_COM_NUM=atoi(value_buf);//
@@ -138,7 +138,7 @@ int main(int argc,char *argv[]){
 		_2023ups[i].WRITE_CONSTANT=atoi(value_buf);//
 	}
 	printf("%d %d %d %d\n\n",_2023ups[0].LINK_COM_NUM,_2023ups[1].LINK_COM_NUM,_2023ups[2].LINK_COM_NUM,_2023ups[3].LINK_COM_NUM);
-	for(i=0;i<NUM_OF_UPS;i++){
+	for(int i=0;i<NUM_OF_UPS;i++){
 		printf("%d %d %d %d %d\n",_2023ups[i].READ_INTERVAL,_2023ups[i].READ_MULTIPLIER,_2023ups[i].READ_CONSTANT,\
 		_2023ups[i].WRITE_MULTIPLIER,_2023ups[i].WRITE_CONSTANT);
 	}
@@ -155,9 +155,8 @@ int main(int argc,char *argv[]){
 #endif
 	
 	//3.初始化相应串口
-	i=0;
 	char com[20];
-	for(i=0;i<NUM_OF_UPS;i++){			//打开串口，配置相应参数
+	for(int i=0;i<NUM_OF_UPS;i++){			//打开串口，配置相应参数
 		memset(com,0,20);
 		if(_2023ups[i].LINK_COM_NUM	>	0){		// _2023ups[i].LINK_COM_NUM从配置文件读取,>0有效	
 			sprintf(com,"\\\\.\\COM%d",_2023ups[i].LINK_COM_NUM);
@@ -216,12 +215,11 @@ int main(int argc,char *argv[]){
 //************************************
 DWORD WINAPI sendDataViaCom(void* dummy){
 	FILE* log;
-	int i=0;
 	DWORD tryTime;
 	char com[20]={0};
 	while(1){
 		Sleep(15000);						//
-		for(i=0;i<NUM_OF_UPS;i++){
+		for(int i=0;i<NUM_OF_UPS;i++){
 			if(_2023ups[i].UPS_SET_ACTIVE == TRUE){
 				tryTime=CHECK_TIME;
 		start_commu:

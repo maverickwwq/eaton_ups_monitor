@@ -1,9 +1,8 @@
-#ifndef WINDOWS_H
-
+/*#ifndef WINDOWS_H
 #define WINDOWS_H
 #define _WIN32_WINNT 0x0400	
 #include <windows.h>
-#endif
+#endif*/
 
 
 #define SERIAL_H

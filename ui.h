@@ -13,7 +13,6 @@
 
 #define _G(str)		g_convert(str,-1,"UTF-8","GB2312",NULL,NULL,NULL)
 
-
 //设置widget的字体大小及颜色
 void setFontColor(GtkWidget *widget,int fontSize,char * colorStr);
 //窗口销毁事件
@@ -134,7 +133,7 @@ activate (GApplication *app,
 	extern const char *frames[];										//监控设备名称
 	extern const char *items[];											//参数名
 
-	mainWin = gtk_application_window_new (app);
+	mainWin = gtk_application_window_new ((GtkApplication*)app);
 	gtk_window_set_title (GTK_WINDOW (mainWin), _G("2023台节传UPS警示系统"));
 	gtk_window_set_default_size (GTK_WINDOW (mainWin), 960, 640);
 	gtk_window_set_resizable(GTK_WINDOW(mainWin),TRUE);						//可改变大小
@@ -149,14 +148,13 @@ activate (GApplication *app,
 		g_error_free(error);												//
 	}																		//
 	gtk_window_set_icon(GTK_WINDOW(mainWin),pixBuf);						//
-		
-	int frameCount=0;														//
+															//
 	GdkColor valueBGColor;
 	//horizonAllUPS=gtk_hbox_new(TRUE,2);									//
 	horizonAllUPS=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);				//
 	gtk_container_add(GTK_CONTAINER(mainWin),horizonAllUPS);
 	gtk_container_add(GTK_CONTAINER(mainWin),horizonAllUPS);				//
-	for(frameCount=0;frameCount<NUM_OF_UPS;frameCount++){							//
+	for(int frameCount=0;frameCount<NUM_OF_UPS;frameCount++){							//
 		frame=gtk_frame_new(_G(frames[frameCount]));						//
 		gtk_box_pack_start(GTK_BOX(horizonAllUPS),frame,TRUE,TRUE,2);		//
 		//vbox=gtk_vbox_new(TRUE,10);										//
@@ -185,8 +183,6 @@ activate (GApplication *app,
 		hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
 		gtk_box_set_homogeneous(GTK_BOX(hbox),TRUE);
 		gtk_box_pack_start(GTK_BOX(vbox),hbox,TRUE,TRUE,5);						//
-		//item=gtk_label_new(_G(items[i]));										//
-		//volumn = gtk_label_new ("Volumn");
 		setFontColor(volumn,11,"blue");											//
 		gtk_box_pack_start(GTK_BOX(hbox),volumn,TRUE,TRUE,2);						//
 //		evenbox=gtk_event_box_new();											//
@@ -207,6 +203,7 @@ activate (GApplication *app,
 		gtk_box_pack_start (GTK_BOX (gtk_info_bar_get_content_area (GTK_INFO_BAR (itemValue[frameCount][9]))),\
 			itemValue[frameCount][10], FALSE, FALSE, 0);
 	}
+	
 	g_timeout_add(REFRESH_PER_X_SECONDS*1000,(GSourceFunc)refreshUI,NULL);
 	
 	about_action = g_simple_action_new ("about", NULL);
