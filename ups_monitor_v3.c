@@ -214,7 +214,7 @@ int main(int argc,char *argv[]){
 //		
 //************************************
 DWORD WINAPI sendDataViaCom(void* dummy){
-	FILE* log;
+//	FILE* log;
 	DWORD tryTime;
 	char com[20]={0};
 	while(1){

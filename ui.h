@@ -11,6 +11,11 @@
 #include "ups_state_log.h"
 #endif
 
+#ifndef ALARM_H
+#define ALARM_H
+#include "alarm.h"
+#endif
+
 #define _G(str)		g_convert(str,-1,"UTF-8","GB2312",NULL,NULL,NULL)
 
 //设置widget的字体大小及颜色
@@ -126,8 +131,8 @@ activate (GApplication *app,
 	GtkWidget *vol_switcher;
 	GSimpleAction *about_action;
 	GSimpleAction *alarm_setting_action;
-	GSimpleAction *com_setting;
-	GSimpleAction *exception_history;
+//	GSimpleAction *com_setting;
+//	GSimpleAction *exception_history;
 	GError *error = NULL;	
 	extern GtkWidget *itemValue[4][11];									//参数值
 	extern const char *frames[];										//监控设备名称

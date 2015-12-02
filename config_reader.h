@@ -49,7 +49,7 @@ typedef struct conf_key_val {
 char* trimf(const char* src){
 	int i=0,j=0;
 	char *buf=(char*)malloc(MAX_CHAR_PER_LINE);
-	while(src[i]!= NULL){
+	while(	*(src+i) != NULL){
 		switch(src[i]){
 			case ' '	:
 			case '\t'	:
@@ -131,12 +131,11 @@ _Bool printCont(CONF_LINE *head){
 
 _Bool analyzeConfFile(char *filePath,KEY_VAL *key_value){
 	//trim empty characters
-	CONF_LINE *conf_ptr=NULL,*head=NULL,*conf_ptr_cur;
+	CONF_LINE *conf_ptr=NULL,*conf_ptr_cur;
 	memset(key_value,0,sizeof(KEY_VAL));
 	trimFile(filePath,&conf_ptr);
-	head=conf_ptr;
+//	head=conf_ptr;
 	//split by '='
-//	ptr=head;
 	KEY_VAL *kv_ptr=key_value,*kv_pre=NULL;
 	int i=0;
 	while(conf_ptr!=NULL){
@@ -159,6 +158,7 @@ _Bool analyzeConfFile(char *filePath,KEY_VAL *key_value){
 	}
 	kv_pre->next=NULL;
 	free(kv_ptr);
+	return TRUE;
 }
 
 _Bool getValue(KEY_VAL *kv,const char *key,char *value){
