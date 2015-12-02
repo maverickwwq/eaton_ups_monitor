@@ -1,5 +1,9 @@
-#include <stdio.h>
-#include <string.h>
+//**************************************************
+//AUTHOR:KIMI WANG
+//DATE:2013-03-04
+//DESCRIPTION:主文件
+//**************************************************
+
 
 //#define _DEBUG_							//调试用，不调试时需要注释掉
 
@@ -29,7 +33,15 @@
 // 系统初始化时误报警
 //
 //----------------------------------------------------
+#ifndef STDIO_H
+#define STDIO_H
+#include <stdio.h>
+#endif
 
+#ifndef STRING_H
+#define STRING_H
+#include <string.h>
+#endif
 
 #ifndef GLOBAL_VAR_H
 #define GLOBAL_VAR_H
@@ -79,6 +91,7 @@
 //子线程1：调用函数-发送接收数据
 DWORD WINAPI	sendDataViaCom(void*);
 
+//_Bool init();
 
 //资源回收,退出程序时调用
 //关闭句柄，关闭线程，关闭串口
@@ -89,9 +102,14 @@ DWORD WINAPI	sendDataViaCom(void*);
 //extern GtkWidget *itemValue[4][11];
 
 int main(int argc,char *argv[]){
-	#ifdef _DEBUG_
-	atexit(report_mem_leak);
-	#endif
+	#ifdef _DEBUG_					//调试时启用内存泄露检测工具
+	printf("DEBUG !!!!!!!!!!!!!!!!!!!!!!!\n\n\n");
+	atexit(report_mem_leak);		//
+	#endif							//
+	
+	//-------------------------------------------------------------------
+	//初始化-------------------------------------------------------------
+	//-------------------------------------------------------------------
 	//1.将发送的命令转换成正确的格式
 	asciiToHex(UPS_COMMUNICATION_INI,UPS_COMMUNICATION_INI_DECODE);
 	asciiToHex(UPS_CMD_ACCEPT,UPS_CMD_ACCEPT_DECODE);
@@ -108,11 +126,12 @@ int main(int argc,char *argv[]){
 	asciiToHex(UPS_CMD_42,UPS_CMD_42_DECODE);
 
 	//2.读取配置文件参数
-	char *value_buf	=	(char*)	malloc(MAX_CHAR_PER_PARA);
-	char *key_buf	=	(char*)	malloc(MAX_CHAR_PER_CONF);
+	char *value_buf	=	(char*)	malloc(MAX_CHAR_PER_PARA);		//临时变量
+	char *key_buf	=	(char*)	malloc(MAX_CHAR_PER_CONF);		//临时变量
 	KEY_VAL config_file,	*config_file_ptr1=&config_file,	*config_file_ptr2=NULL;
 	analyzeConfFile("config",&config_file);
-	for(int i=0;i<NUM_OF_UPS;i++){
+	errorReport();								//
+	for(int i=0;i<NUM_OF_UPS;i++){								//读取配置文件参数的设定值
 		sprintf(key_buf,"com_num_%d",i+1);
 		getValue(&config_file,key_buf,value_buf);
 		_2023ups[i].LINK_COM_NUM=atoi(value_buf);//
@@ -137,11 +156,13 @@ int main(int argc,char *argv[]){
 		getValue(&config_file,key_buf,value_buf);
 		_2023ups[i].WRITE_CONSTANT=atoi(value_buf);//
 	}
+	#ifdef _DEBUG_
 	printf("%d %d %d %d\n\n",_2023ups[0].LINK_COM_NUM,_2023ups[1].LINK_COM_NUM,_2023ups[2].LINK_COM_NUM,_2023ups[3].LINK_COM_NUM);
 	for(int i=0;i<NUM_OF_UPS;i++){
 		printf("%d %d %d %d %d\n",_2023ups[i].READ_INTERVAL,_2023ups[i].READ_MULTIPLIER,_2023ups[i].READ_CONSTANT,\
 		_2023ups[i].WRITE_MULTIPLIER,_2023ups[i].WRITE_CONSTANT);
 	}
+	#endif
 	free(value_buf);
 	free(key_buf);
 	while(config_file_ptr1!=NULL){
@@ -149,22 +170,23 @@ int main(int argc,char *argv[]){
 		config_file_ptr1=config_file_ptr1->next;
 		free(config_file_ptr2);
 	}
-
-#ifdef _DEBUG_
-	printf("DEBUG !!!!!!!!!!!!!!!!!!!!!!!\n\n\n");
-#endif
 	
 	//3.初始化相应串口
 	char com[20];
 	for(int i=0;i<NUM_OF_UPS;i++){			//打开串口，配置相应参数
 		memset(com,0,20);
 		if(_2023ups[i].LINK_COM_NUM	>	0){		// _2023ups[i].LINK_COM_NUM从配置文件读取,>0有效	
-			sprintf(com,"\\\\.\\COM%d",_2023ups[i].LINK_COM_NUM);
 			_2023ups[i].UPS_SET_ACTIVE=TRUE;
+			//gtk_switch_set_active(itemValue[i][9],TRUE);
+			//_2023ups[i].UPS_ALARM_ENABLE=TRUE;
+			#ifdef _DEBUG_
 			printf("start com%d communication\n",_2023ups[i].LINK_COM_NUM);
+			#endif
+			sprintf(com,"\\\\.\\COM%d",_2023ups[i].LINK_COM_NUM);
 			_2023ups[i].UPS_COM_HANDLE=initialCom(com,1024);
 			if(_2023ups[i].UPS_COM_HANDLE == INVALID_HANDLE_VALUE){
 				//需要加入异常处理及日志记录
+				errorReport();
 				printf("Open Com%d Error shit\n",_2023ups[i].LINK_COM_NUM);
 				//
 				exit(0);

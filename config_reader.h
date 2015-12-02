@@ -1,6 +1,11 @@
-#ifndef CONFIG_READER_H
+//*****************************************************
+//AUTHOR:KIMI WANG
+//DATE:2015-10-21
+//DESCRIPTION:读取配置文件
+//*****************************************************
+
+
 #define CONFIG_READER_H
-#endif
 
 #ifndef STDIO_H
 #define STDIO_H
@@ -29,7 +34,7 @@
 #define MAX_CHAR_PER_LINE 100
 #define MAX_CHAR_PER_PARA 40
 #define MAX_CHAR_PER_CONF 40
-//2015.10.21 kimi wang
+
 
 //该结构体用来保存配置文件每行的字符串
 typedef struct conf_line {

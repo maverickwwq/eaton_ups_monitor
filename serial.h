@@ -1,20 +1,7 @@
-/*#ifndef WINDOWS_H
-#define WINDOWS_H
-#define _WIN32_WINNT 0x0400	
-#include <windows.h>
-#endif*/
-
-
 #define SERIAL_H
 
 
-// #ifdef _DEBUG_
-// #define WRITE_CALL_BACK_ROUTINE writeCallback
-// #define READ_CALL_BACK_ROUTINE readCallback
-// #else	
-// #define	WRITE_CALL_BACK_ROUTINE	NULL
-// #define READ_CALL_BACK_ROUTINE	NULL
-// #endif
+
 
 //****************************************************************************************************************
 //AUTHOR:KIMI WANG

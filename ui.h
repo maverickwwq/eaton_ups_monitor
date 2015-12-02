@@ -1,3 +1,10 @@
+//************************************************
+//AUTHOR:KIMI WANG
+//DATE:2013-03-04
+//DESCRIPTION:图形界面定义、回调函数、定时函数
+//************************************************
+
+
 #define UI_H
 
 #ifndef GTK_H
@@ -25,12 +32,10 @@ void destroyEvent(GtkWidget *widget,void *data);
 //定时刷新界面
 gboolean refreshUI(void *nothing);
 
-void destroyEvent(GtkWidget *widget,void *data){
-	gtk_main_quit();
-}
-
-
-
+//---------------------------------------------------------------------------
+//设置字体颜色
+//
+//---------------------------------------------------------------------------
 void setFontColor(GtkWidget *widget,int fontSize,char * colorStr){
 	PangoFontDescription	*font=pango_font_description_from_string("Sans 13");
 	pango_font_description_set_size(font,fontSize * PANGO_SCALE);
@@ -40,7 +45,18 @@ void setFontColor(GtkWidget *widget,int fontSize,char * colorStr){
 	gtk_widget_modify_font(GTK_WIDGET(widget),font);
 }
 
+//---------------------------------------------------------------------------
+//退出软件
+//
+//---------------------------------------------------------------------------
+void destroyEvent(GtkWidget *widget,void *data){
+	gtk_main_quit();
+}
 
+//---------------------------------------------------------------------------
+//关于界面退出按钮的回调函数
+//
+//---------------------------------------------------------------------------
 /* Callback function in which closes the about_dialog created below */
 static void
 on_close (GtkDialog *dialog,
@@ -50,7 +66,10 @@ on_close (GtkDialog *dialog,
   gtk_widget_destroy (GTK_WIDGET (dialog));
 }
 
-
+//---------------------------------------------------------------------------
+//报警设置按钮的回调函数
+//
+//---------------------------------------------------------------------------
 static void
 alarm_setting_cb (GtkDialog *dialog,
           gint       response_id,
@@ -59,6 +78,10 @@ alarm_setting_cb (GtkDialog *dialog,
   printf("alarm_setting call\n");
 }
 
+//---------------------------------------------------------------------------
+//串口设置按钮的回调函数
+//
+//---------------------------------------------------------------------------
 static void
 com_setting_cb (GtkDialog *dialog,
           gint       response_id,
@@ -67,6 +90,11 @@ com_setting_cb (GtkDialog *dialog,
   printf("com_setting call\n");
 }
 
+
+//---------------------------------------------------------------------------
+//异常历史记录按钮的回调函数
+//
+//---------------------------------------------------------------------------
 static void
 exception_history_cb (GtkDialog *dialog,
           gint       response_id,
@@ -75,6 +103,11 @@ exception_history_cb (GtkDialog *dialog,
   printf("exception_history call\n");
 }
 
+
+//---------------------------------------------------------------------------
+//关于按钮的回调函数
+//
+//---------------------------------------------------------------------------
 /* Callback function for the about action (see aboutdialog.c example) */
 static void
 about_callback (GSimpleAction *simple,
@@ -115,6 +148,20 @@ about_callback (GSimpleAction *simple,
 		g_application_quit (application);
 	}
 
+	
+static void activate_volumn (GObject    *switcher,
+             GParamSpec *pspec,
+             gpointer    user_data){
+	int i = user_data;
+	if (gtk_switch_get_active (GTK_SWITCH (switcher))){
+		_2023ups[i].UPS_ALARM_ENABLE=TRUE;
+	}
+	else{
+		_2023ups[i].UPS_ALARM_ENABLE=FALSE;
+	}
+	printf("\n\nYou press %d\n\n",i);
+}
+	
 
 static void
 activate (GApplication *app,
@@ -134,7 +181,7 @@ activate (GApplication *app,
 //	GSimpleAction *com_setting;
 //	GSimpleAction *exception_history;
 	GError *error = NULL;	
-	extern GtkWidget *itemValue[4][11];									//参数值
+	extern GtkWidget *itemValue[4][12];									//参数值
 	extern const char *frames[];										//监控设备名称
 	extern const char *items[];											//参数名
 
@@ -155,18 +202,15 @@ activate (GApplication *app,
 	gtk_window_set_icon(GTK_WINDOW(mainWin),pixBuf);						//
 															//
 	GdkColor valueBGColor;
-	//horizonAllUPS=gtk_hbox_new(TRUE,2);									//
 	horizonAllUPS=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);				//
-	gtk_container_add(GTK_CONTAINER(mainWin),horizonAllUPS);
 	gtk_container_add(GTK_CONTAINER(mainWin),horizonAllUPS);				//
-	for(int frameCount=0;frameCount<NUM_OF_UPS;frameCount++){							//
+	gtk_container_add(GTK_CONTAINER(mainWin),horizonAllUPS);				//
+	for(int frameCount=0;frameCount<NUM_OF_UPS;frameCount++){				//
 		frame=gtk_frame_new(_G(frames[frameCount]));						//
 		gtk_box_pack_start(GTK_BOX(horizonAllUPS),frame,TRUE,TRUE,2);		//
-		//vbox=gtk_vbox_new(TRUE,10);										//
-		vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
+		vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL,10);						//
 		gtk_container_add(GTK_CONTAINER(frame),vbox);						//
-		for(int i=0;i<9;i++){
-			//hbox=gtk_hbox_new(TRUE,2);												//
+		for(int i=0;i<NUM_OF_DATA-2;i++){
 			hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
 			gtk_box_set_homogeneous(GTK_BOX(hbox),TRUE);
 			gtk_box_pack_start(GTK_BOX(vbox),hbox,TRUE,TRUE,5);						//
@@ -182,31 +226,22 @@ activate (GApplication *app,
 			gtk_container_add(GTK_CONTAINER(evenbox),itemValue[frameCount][i]);					//
 		}
 		volumn = gtk_label_new (_G("声音"));
-		vol_switcher = gtk_switch_new ();
-		gtk_switch_set_active (GTK_SWITCH (vol_switcher), TRUE);
-		
+		itemValue[frameCount][9]=gtk_switch_new();
+		gtk_switch_set_active (GTK_SWITCH (itemValue[frameCount][9]), FALSE);
 		hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
 		gtk_box_set_homogeneous(GTK_BOX(hbox),TRUE);
 		gtk_box_pack_start(GTK_BOX(vbox),hbox,TRUE,TRUE,5);						//
 		setFontColor(volumn,11,"blue");											//
 		gtk_box_pack_start(GTK_BOX(hbox),volumn,TRUE,TRUE,2);						//
-//		evenbox=gtk_event_box_new();											//
-//		gdk_color_parse("black",&valueBGColor);
-//		gtk_widget_modify_bg(evenbox, GTK_STATE_NORMAL, &valueBGColor);		//背景颜色
-		gtk_box_pack_start(GTK_BOX(hbox),vol_switcher,TRUE,TRUE,2);					//
-//		itemValue[frameCount][i]=gtk_label_new("-- --");									//
-//		setFontColor(itemValue[frameCount][i],15,"green");									//
-//		gtk_container_add(GTK_CONTAINER(evenbox),vol_switcher);					//
-		
-		
-		
-		itemValue[frameCount][9] = gtk_info_bar_new ();
-		gtk_box_pack_start (GTK_BOX (vbox), itemValue[frameCount][9], FALSE, FALSE, 0);
-		gtk_info_bar_set_message_type (GTK_INFO_BAR (itemValue[frameCount][9]),\
+		gtk_box_pack_start(GTK_BOX(hbox),itemValue[frameCount][9],TRUE,TRUE,2);					//
+		g_signal_connect (GTK_SWITCH (itemValue[frameCount][9]),"notify::active",G_CALLBACK (activate_volumn),frameCount);		
+		itemValue[frameCount][10] = gtk_info_bar_new ();
+		gtk_box_pack_start (GTK_BOX (vbox), itemValue[frameCount][10], FALSE, FALSE, 0);
+		gtk_info_bar_set_message_type (GTK_INFO_BAR (itemValue[frameCount][10]),\
 			GTK_MESSAGE_QUESTION);
-		itemValue[frameCount][10]= gtk_label_new (_G("正常"));
-		gtk_box_pack_start (GTK_BOX (gtk_info_bar_get_content_area (GTK_INFO_BAR (itemValue[frameCount][9]))),\
-			itemValue[frameCount][10], FALSE, FALSE, 0);
+		itemValue[frameCount][11]= gtk_label_new (_G("正常"));
+		gtk_box_pack_start (GTK_BOX (gtk_info_bar_get_content_area (GTK_INFO_BAR (itemValue[frameCount][10]))),\
+			itemValue[frameCount][11], FALSE, FALSE, 0);
 	}
 	
 	g_timeout_add(REFRESH_PER_X_SECONDS*1000,(GSourceFunc)refreshUI,NULL);
@@ -262,33 +297,7 @@ startup(GApplication *app,
 
 //刷新图形函数+语音报警
 gboolean refreshUI(void *nothing){
-// 	HANDLE hTimer=CreateWaitableTimer(NULL,FALSE,NULL);
-// 	if(hTimer == NULL)
-// 		printf("\nCreateWaitableTimer error\n");
-// 	LARGE_INTEGER li;
-// 	li.QuadPart=-50000000;
-// 	SetWaitableTimer(hTimer,&li,1000,printUPSState,NULL,FALSE);
-// 	while(1){
-// 		SleepEx(INFINITE,TRUE);
-// 	}
-// 	return 0;
-//	gdk_threads_enter();
-//	g_type_init();
-//	static unsigned int count=0;
-
-/*
-	printf("\n--------------------------------------------\n");
-	printf("--------------------------------------------\n");
-	printf("通信:%s\n",(_2023ups[i].UPS_COMMUNICATE_NORMAL==TRUE)?"正常":"故障");
-	printf("UPS:%s\n",(_2023ups[i].UPS_ERROR==FALSE)?"正常":"故障");
-	printf("市电:%s\n",(_2023ups[i].INPUT_POWER_ABNORMAL==FALSE)?"正常":"故障");
-	printf("市电电压:%d\n",_2023ups[i].INPUT_VOLTAGE);
-	printf("市电频率:%d\n",_2023ups[i].INPUT_FREQUENCY);
-	printf("Count:%4d\n",count);
-	printf("--------------------------------------------\n");
-	printf("--------------------------------------------\n");
-*/
-	extern GtkWidget *itemValue[4][11];
+	extern GtkWidget *itemValue[4][12];
 	char buf[25];
 	int i=0,j=0;
 	for(i=0;i<NUM_OF_UPS;++i){
@@ -386,8 +395,9 @@ gboolean refreshUI(void *nothing){
 						gtk_info_bar_set_message_type(GTK_INFO_BAR (itemValue[i][9]),\
 							GTK_MESSAGE_WARNING);
 						gtk_label_set_text(GTK_LABEL(itemValue[i][10]),_G("市电异常"));
-					}					
-					makeSound(ALARM_INPUT_ERROR);
+					}
+					if(_2023ups[i].UPS_ALARM_ENABLE)
+						makeSound(ALARM_INPUT_ERROR);
 					continue;
 				}
 				if(!_2023ups[i].UPS_ERROR){	//ups正常
@@ -405,7 +415,8 @@ gboolean refreshUI(void *nothing){
 						ups_error=TRUE;
 						conditionChangeLog(4,FALSE,i);
 					}
-					makeSound(ALARM_UPS_ERROR);
+					if(_2023ups[i].UPS_ALARM_ENABLE)
+						makeSound(ALARM_UPS_ERROR);
 					continue;
 				}
 				//所有都正常的话走执行这里
@@ -421,8 +432,8 @@ gboolean refreshUI(void *nothing){
 						GTK_MESSAGE_INFO);
 					gtk_label_set_text(GTK_LABEL(itemValue[i][10]),_G("通信异常"));
 				}
-				makeSound(ALARM_UPS_ERROR);
-				makeSound(ALARM_NOT_CONNECT);
+				if(_2023ups[i].UPS_ALARM_ENABLE)
+					makeSound(ALARM_NOT_CONNECT);
 				continue;
 			}
 		}
