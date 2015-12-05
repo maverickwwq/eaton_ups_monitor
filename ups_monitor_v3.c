@@ -236,7 +236,6 @@ int main(int argc,char *argv[]){
 //		
 //************************************
 DWORD WINAPI sendDataViaCom(void* dummy){
-//	FILE* log;
 	DWORD tryTime;
 	char com[20]={0};
 	while(1){
@@ -244,7 +243,8 @@ DWORD WINAPI sendDataViaCom(void* dummy){
 		for(int i=0;i<NUM_OF_UPS;i++){
 			if(_2023ups[i].UPS_SET_ACTIVE == TRUE){
 				tryTime=CHECK_TIME;
-		start_commu:
+				
+				start_commu:
 			//测试通信是否正常
 				if(!sendCMD(_2023ups[i].UPS_COM_HANDLE,UPS_COMMUNICATION_INI,\
 					UPS_COMMUNICATION_INI_DECODE,_2023ups[i].UPS_COMMUNICATION_INI_ANSWER,1) && \
