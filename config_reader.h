@@ -90,13 +90,12 @@ char* ignoreSharp(char* src){
 //该函数用来将配置文件中的字符串转换成存放在CONF_LINE的结构体中
 _Bool trimFile(const char *filePath,CONF_LINE **ptr){
 		FILE *fp=fopen(filePath,"r");
-		char *buf=(char*)malloc(MAX_CHAR_PER_LINE+1);
-		char *s_trim=NULL;
-		CONF_LINE *previous=NULL,*current=NULL,*next=NULL,*head=NULL;
-		if(fp == NULL){
-			//file open failed or file not existed
-		}
+		if(fp == NULL)
+			return FALSE;//文件打开失败
 		else{
+			char *buf=(char*)malloc(MAX_CHAR_PER_LINE+1);
+			char *s_trim=NULL;
+			CONF_LINE *previous=NULL,*current=NULL,*next=NULL,*head=NULL;
 			head=(CONF_LINE *)malloc(sizeof(CONF_LINE));
 			*ptr=head;
 			current=head;
@@ -120,7 +119,7 @@ _Bool trimFile(const char *filePath,CONF_LINE **ptr){
 		}
 		free(buf);
 		fclose(fp);
-		return 1;
+		return TRUE;
 }
 
 /*
@@ -138,7 +137,8 @@ _Bool analyzeConfFile(char *filePath,KEY_VAL *key_value){
 	//trim empty characters
 	CONF_LINE *conf_ptr=NULL,*conf_ptr_cur;
 	memset(key_value,0,sizeof(KEY_VAL));
-	trimFile(filePath,&conf_ptr);
+	if(!trimFile(filePath,&conf_ptr))
+		return FALSE;
 //	head=conf_ptr;
 	//split by '='
 	KEY_VAL *kv_ptr=key_value,*kv_pre=NULL;
