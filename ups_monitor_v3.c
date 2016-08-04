@@ -32,6 +32,12 @@
 // 图形界面：声音单独控制
 // 系统初始化时误报警
 //
+//
+//
+//
+// 2016/08/03
+// ups_monitor_v3.c line:187 
+//					line:301 处break改为continue？
 //----------------------------------------------------
 #ifndef STDIO_H
 #define STDIO_H
@@ -256,7 +262,7 @@ DWORD WINAPI sendDataViaCom(void* dummy){
 					//不正常，重启com口，并设置
 					if(tryTime--){			//最多尝试CHECK_TIME次
 						Sleep(1000);
-						printf("重启com%d\n",_2023ups[i].LINK_COM_NUM);
+						printf("restart com%d\n",_2023ups[i].LINK_COM_NUM);
 						closeCom(_2023ups[i].UPS_COM_HANDLE);
 						memset(com,0,20);
 						sprintf(com,"\\\\.\\COM%d",_2023ups[i].LINK_COM_NUM);
@@ -265,9 +271,9 @@ DWORD WINAPI sendDataViaCom(void* dummy){
 						COMMTIMEOUTS timeouts={_2023ups[i].READ_INTERVAL,_2023ups[i].READ_MULTIPLIER,\
 							_2023ups[i].READ_CONSTANT,_2023ups[i].WRITE_MULTIPLIER,_2023ups[i].WRITE_CONSTANT};
 						if(setComTimeout(_2023ups[i].UPS_COM_HANDLE,timeouts))
-							printf("set com timeout ok\n");//需要加入异常处理及日志记录
+							printf("set com timeout ok .....\n");//需要加入异常处理及日志记录
 						if(setComPara(_2023ups[i].UPS_COM_HANDLE,_24_N_8_1))
-							printf("set com parameter ok\n");	
+							printf("set com parameter ok.....\n");	
 						if(_2023ups[i].UPS_COM_HANDLE == INVALID_HANDLE_VALUE){		//无效句柄
 							printf("Open Com Error,try %d times\n",CHECK_TIME);								//退出
 							//
