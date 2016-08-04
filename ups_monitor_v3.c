@@ -113,6 +113,8 @@ int main(int argc,char *argv[]){
 	atexit(report_mem_leak);		//
 	#endif							//
 	
+	//UI start
+	
 	//-------------------------------------------------------------------
 	//初始化-------------------------------------------------------------
 	//-------------------------------------------------------------------
@@ -130,37 +132,67 @@ int main(int argc,char *argv[]){
 	asciiToHex(UPS_CMD_32,UPS_CMD_32_DECODE);
 	asciiToHex(UPS_CMD_3B,UPS_CMD_3B_DECODE);
 	asciiToHex(UPS_CMD_42,UPS_CMD_42_DECODE);
-
+	//UI show "ok"
+	
 	//2.读取配置文件参数
 	char *value_buf	=	(char*)	malloc(MAX_CHAR_PER_PARA);		//临时变量
 	char *key_buf	=	(char*)	malloc(MAX_CHAR_PER_CONF);		//临时变量
 	KEY_VAL config_file,	*config_file_ptr1=&config_file,	*config_file_ptr2=NULL;
-	analyzeConfFile("config",&config_file);
+	if(analyzeConfFile("config",&config_file)){
+		//read file successfully
+	}
+	else{
+		//file not existed
+	}
 	errorReport();								//
 	for(int i=0;i<NUM_OF_UPS;i++){								//读取配置文件参数的设定值
 		sprintf(key_buf,"com_num_%d",i+1);
-		getValue(&config_file,key_buf,value_buf);
-		_2023ups[i].LINK_COM_NUM=atoi(value_buf);//
+		if(getValue(&config_file,key_buf,value_buf)){
+			_2023ups[i].LINK_COM_NUM=atoi(value_buf);//
+		}
+		else{
+			
+		}
 		
 		sprintf(key_buf,"READ_INTERVAL_UPS%d",i+1);
-		getValue(&config_file,key_buf,value_buf);
-		_2023ups[i].READ_INTERVAL=atoi(value_buf);//
+		if(getValue(&config_file,key_buf,value_buf)){
+			_2023ups[i].READ_INTERVAL=atoi(value_buf);//
+		}
+		else{
+			
+		}
 		
 		sprintf(key_buf,"READ_MULTIPLIER_UPS%d",i+1);
-		getValue(&config_file,key_buf,value_buf);
-		_2023ups[i].READ_MULTIPLIER=atoi(value_buf);//
+		if(getValue(&config_file,key_buf,value_buf)){
+			_2023ups[i].READ_MULTIPLIER=atoi(value_buf);//
+		}
+		else{
+			
+		}
 		
 		sprintf(key_buf,"READ_CONSTANT_UPS%d",i+1);
-		getValue(&config_file,key_buf,value_buf);
-		_2023ups[i].READ_CONSTANT=atoi(value_buf);//
+		if(getValue(&config_file,key_buf,value_buf)){
+			_2023ups[i].READ_CONSTANT=atoi(value_buf);//
+		}
+		else{
+			
+		}
 		
 		sprintf(key_buf,"WRITE_MULTIPLIER_UPS%d",i+1);
-		getValue(&config_file,key_buf,value_buf);
-		_2023ups[i].WRITE_MULTIPLIER=atoi(value_buf);//
+		if(getValue(&config_file,key_buf,value_buf)){
+			_2023ups[i].WRITE_MULTIPLIER=atoi(value_buf);//
+		}
+		else{
+			
+		}
 		
 		sprintf(key_buf,"WRITE_CONSTANT_UPS%d",i+1);
-		getValue(&config_file,key_buf,value_buf);
-		_2023ups[i].WRITE_CONSTANT=atoi(value_buf);//
+		if(getValue(&config_file,key_buf,value_buf)){
+			_2023ups[i].WRITE_CONSTANT=atoi(value_buf);//
+		}
+		else{
+			
+		}
 	}
 	#ifdef _DEBUG_
 	printf("%d %d %d %d\n\n",_2023ups[0].LINK_COM_NUM,_2023ups[1].LINK_COM_NUM,_2023ups[2].LINK_COM_NUM,_2023ups[3].LINK_COM_NUM);
@@ -245,7 +277,6 @@ DWORD WINAPI sendDataViaCom(void* dummy){
 	DWORD tryTime;
 	char com[20]={0};
 	while(1){
-		Sleep(15000);						//
 		for(int i=0;i<NUM_OF_UPS;i++){
 			if(_2023ups[i].UPS_SET_ACTIVE == TRUE){
 				tryTime=CHECK_TIME;
@@ -519,6 +550,7 @@ DWORD WINAPI sendDataViaCom(void* dummy){
 				}
 			}
 		}
+		Sleep(15000);						//
 	}
 	return 0;
 }
